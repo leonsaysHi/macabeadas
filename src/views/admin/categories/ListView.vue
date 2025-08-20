@@ -1,9 +1,8 @@
 <script lang="ts" setup>
 import { useFirestore } from 'vuefire';
 import { useCollection } from 'vuefire';
-import { collection, deleteDoc, doc } from 'firebase/firestore';
+import { collection } from 'firebase/firestore';
 import DataTable from '@/components/ui/DataTableComp.vue';
-import ConfirmComp from '@/components/ui/ConfirmComp.vue';
 import { useI18n } from 'vue-i18n';
 import type { Categorie } from '@/types/categories';
 import { rootProvided } from '@/types/injections';
@@ -12,8 +11,7 @@ import { inject } from 'vue';
 const { t } = useI18n();
 const db = useFirestore();
 const catRef = collection(db, 'categories');
-const mulRef = collection(db, 'multies');
-const items = useCollection(catRef);
+const items = useCollection<Categorie>(catRef);
 const injectedData = inject(rootProvided);
 const multies = injectedData?.multies;
 const fields = [
@@ -29,28 +27,17 @@ const fields = [
     label: t('globals.genders.m'),
     sortByFormatted: true,
     formatter: (value, item: Categorie) =>
-      multies?.value.find((m) => m.categorieId === item.docId && m.gender === 'm')?.color,
+      multies?.value.find((m) => m.categorieId === item.id && m.gender === 'm')?.color,
   },
   {
     key: 'colorF',
     label: t('globals.genders.f'),
     sortByFormatted: true,
     formatter: (value, item: Categorie) =>
-      multies?.value.find((m) => m.categorieId === item.docId && m.gender === 'f')?.color,
+      multies?.value.find((m) => m.categorieId === item.id && m.gender === 'f')?.color,
   },
   { key: 'actions', label: '' },
 ];
-const handleRemove = async (id: string) => {
-  try {
-    multies?.value
-      .filter((multi) => multi.categorieId === id)
-      .forEach(async (multi) => await deleteDoc(doc(mulRef, multi.id)));
-    await deleteDoc(doc(catRef, id));
-    console.log('Documents successfully deleted!');
-  } catch (error) {
-    console.warn('Error removing document:', error);
-  }
-};
 </script>
 
 <template>
@@ -72,11 +59,9 @@ const handleRemove = async (id: string) => {
         ><div class="hstack justify-content-end gap-1">
           <RouterLink
             class="btn btn-sm btn-primary"
-            :to="{ name: 'admin-categorie-edit', params: { id: item.docId } }"
+            :to="{ name: 'admin-categorie-edit', params: { categorieId: item.docId } }"
             >{{ $t('actions.edit') }}</RouterLink
-          ><ConfirmComp variant="danger" size="sm" @confirm="() => handleRemove(item.docId)">{{
-            $t('actions.remove')
-          }}</ConfirmComp>
+          >
         </div></template
       >
     </DataTable>

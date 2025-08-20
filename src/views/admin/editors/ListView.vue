@@ -1,28 +1,20 @@
 <script lang="ts" setup>
 import { useFirestore } from 'vuefire';
 import { useCollection } from 'vuefire';
-import { collection, deleteDoc, doc } from 'firebase/firestore';
+import { collection } from 'firebase/firestore';
 import DataTable from '@/components/ui/DataTableComp.vue';
-import ConfirmComp from '@/components/ui/ConfirmComp.vue';
 import { useI18n } from 'vue-i18n';
+import type { User } from 'firebase/auth';
 
 const { t } = useI18n();
 const db = useFirestore();
 const colRef = collection(db, 'users');
-const items = useCollection(colRef);
+const items = useCollection<User>(colRef);
 const fields = [
   { key: 'email', label: t('globals.email') },
   { key: 'role', label: t('globals.role') },
   { key: 'actions', label: '' },
 ];
-const handleRemove = async (id: string) => {
-  try {
-    await deleteDoc(doc(colRef, id));
-    console.log('Document successfully deleted!');
-  } catch (error) {
-    console.warn('Error removing document:', error);
-  }
-};
 </script>
 
 <template>
@@ -38,11 +30,9 @@ const handleRemove = async (id: string) => {
         ><div class="hstack justify-content-end gap-1">
           <RouterLink
             class="btn btn-primary"
-            :to="{ name: 'admin-editor-edit', params: { id: item.docId } }"
+            :to="{ name: 'admin-editor-edit', params: { userId: item.docId } }"
             >{{ $t('actions.edit') }}</RouterLink
-          ><ConfirmComp variant="danger" @confirm="() => handleRemove(item.docId)">{{
-            $t('actions.remove')
-          }}</ConfirmComp>
+          >
         </div></template
       >
     </DataTable>

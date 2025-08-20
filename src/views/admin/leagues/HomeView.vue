@@ -1,20 +1,38 @@
 <script lang="ts" setup>
-import { computed, inject } from 'vue';
-import { rootProvided } from '@/types/injections';
+import { computed, inject, provide } from 'vue';
+import { rootProvided, adminLeagueProvided } from '@/types/injections';
 import { useRoute } from 'vue-router';
+import { collection } from 'firebase/firestore';
+import { useCollection, useFirestore } from 'vuefire';
+import type { Team } from '@/types/teams';
+import SpinnerComp from '@/components/SpinnerComp.vue';
+import type { Game } from '@/types/games';
+
+const db = useFirestore();
 const route = useRoute();
 const injectedData = inject(rootProvided);
 
-const leagueId = computed<string>(() => route.params.leagueId as string);
+const leagueId = route.params.leagueId as string;
 
 const categories = injectedData?.categories;
 const multies = injectedData?.multies;
 const leagues = injectedData?.leagues;
-const league = computed(() => leagues?.value.find((item) => item.id === leagueId.value));
+const league = computed(() => leagues?.value.find((item) => item.id === leagueId));
 const multi = computed(() => multies?.value.find((item) => league.value?.multiId === item.id));
 const categorie = computed(() =>
   categories?.value.find((item) => multi.value?.categorieId === item.id),
 );
+
+const teamsColRef = collection(db, `leagues/${leagueId}/teams`);
+const gamesColRef = collection(db, `leagues/${leagueId}/games`);
+
+const { data: teams, pending: isTeamsPending } = useCollection<Team>(teamsColRef);
+const { data: games, pending: isGamesPending } = useCollection<Game>(gamesColRef);
+
+provide(adminLeagueProvided, {
+  teams,
+  games,
+});
 </script>
 
 <template>
@@ -43,5 +61,12 @@ const categorie = computed(() =>
       </RouterLink>
     </li>
   </ul>
-  <RouterView />
+  <template v-if="isTeamsPending || isGamesPending">
+    <div class="p-5 hstack justify-content-center">
+      <SpinnerComp />
+    </div>
+  </template>
+  <template v-else>
+    <RouterView />
+  </template>
 </template>

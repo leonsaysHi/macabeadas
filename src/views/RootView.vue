@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import type { Settings } from '@/types/settings';
 import { collection } from 'firebase/firestore';
 import { RouterView } from 'vue-router';
 import { useCollection, useFirestore } from 'vuefire';
 const db = useFirestore();
 const colRef = collection(db, 'settings');
-const items = useCollection(colRef);
+const items = useCollection<Settings>(colRef);
 </script>
 
 <template>

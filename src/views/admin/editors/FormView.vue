@@ -1,13 +1,22 @@
 <script lang="ts" setup>
 import { useDocument, useFirestore } from 'vuefire';
-import { addDoc, collection, CollectionReference, doc, setDoc } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  CollectionReference,
+  deleteDoc,
+  doc,
+  setDoc,
+} from 'firebase/firestore';
+import { reactive, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import type { User, UserRole } from '@/types/users';
 import FieldComp from '@/components/form/FieldComp.vue';
 import InputComp from '@/components/form/InputComp.vue';
 import SelectComp from '@/components/form/SelectComp.vue';
-import { reactive, ref, watch } from 'vue';
 import ButtonComp from '@/components/ui/ButtonComp.vue';
-import { useRoute, useRouter } from 'vue-router';
-import type { User, UserRole } from '@/types/users';
+import ConfirmComp from '@/components/ui/ConfirmComp.vue';
+
 const route = useRoute();
 const router = useRouter();
 const db = useFirestore();
@@ -19,13 +28,13 @@ const roleOptions = [
   },
 ];
 const isBusy = ref<boolean>(false);
-const editorId: string = route.params.id as string;
+const userId: string = route.params.userId as string;
 const formData = reactive<User>({
   email: '',
   role: roleOptions[0].value,
 });
 const colRef = collection(db, 'users') as CollectionReference<User>;
-const docRef = editorId ? doc(colRef, editorId) : undefined;
+const docRef = userId ? doc(colRef, userId) : undefined;
 const item = docRef ? useDocument<User>(docRef, { once: true }) : ref<User | null>(null);
 watch(
   () => item.value,
@@ -50,7 +59,16 @@ const handleSave = async (ev: Event) => {
     router.push({ name: 'admin-editors' });
   } catch (err) {
     console.warn('Error saving document:', err);
-  } finally {
+    isBusy.value = false;
+  }
+};
+const handleRemove = async () => {
+  try {
+    isBusy.value = true;
+    await deleteDoc(doc(colRef, userId));
+    router.push({ name: 'admin-editors' });
+  } catch (error) {
+    console.warn('Error removing document:', error);
     isBusy.value = false;
   }
 };
@@ -61,8 +79,8 @@ const handleSave = async (ev: Event) => {
     <h2>
       {{ $t('admin.editors.form.title') }}
     </h2>
-    <template v-if="item?.id">
-      <small class="text-body-secondary">{{ item.id }}</small>
+    <template v-if="userId">
+      <small class="text-body-secondary">{{ userId }}</small>
     </template>
   </div>
   <form class="row g-3" @submit="handleSave">
@@ -74,6 +92,11 @@ const handleSave = async (ev: Event) => {
     </FieldComp>
     <div class="col-12 hstack gap-1 justify-content-end">
       <ButtonComp type="submit" variant="primary" :is-busy="isBusy">Save</ButtonComp>
+      <template v-if="userId">
+        <ConfirmComp variant="danger" @confirm="handleRemove">{{
+          $t('actions.remove')
+        }}</ConfirmComp>
+      </template>
     </div>
   </form>
 </template>

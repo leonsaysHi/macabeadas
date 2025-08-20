@@ -1,15 +1,16 @@
 <script lang="ts" setup>
-import { useDocument, useFirestore } from 'vuefire';
-import { addDoc, collection, doc, setDoc } from 'firebase/firestore';
-import FieldComp from '@/components/form/FieldComp.vue';
-import InputComp from '@/components/form/InputComp.vue';
-import SelectComp from '@/components/form/SelectComp.vue';
-import { inject, onMounted, reactive, ref, watch } from 'vue';
-import ButtonComp from '@/components/ui/ButtonComp.vue';
+import { useFirestore } from 'vuefire';
+import { addDoc, collection, deleteDoc, doc, setDoc } from 'firebase/firestore';
+import { computed, inject, onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import type { Categorie } from '@/types/categories';
 import { rootProvided } from '@/types/injections';
 import type { Multi } from '@/types/multies';
+import FieldComp from '@/components/form/FieldComp.vue';
+import InputComp from '@/components/form/InputComp.vue';
+import SelectComp from '@/components/form/SelectComp.vue';
+import ButtonComp from '@/components/ui/ButtonComp.vue';
+import ConfirmComp from '@/components/ui/ConfirmComp.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -18,6 +19,7 @@ const catColRef = collection(db, 'categories');
 const mulColRef = collection(db, 'multies');
 
 const injectedData = inject(rootProvided);
+const categories = injectedData?.categories;
 const multies = injectedData?.multies;
 
 const gradesOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((value) => ({
@@ -26,7 +28,8 @@ const gradesOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((value) => ({
 }));
 
 const isBusy = ref<boolean>(false);
-const categorieId: string = route.params.id as string;
+const categorieId: string = route.params.categorieId as string;
+const item = computed(() => categories?.value.find((i) => i.id === categorieId));
 const formData = reactive<Categorie>({
   title: '',
   grades: [],
@@ -44,30 +47,23 @@ const multiFemData = reactive<Multi>({
 });
 
 onMounted(() => {
+  if (item.value) {
+    formData.title = item.value.title;
+    formData.grades = item.value.grades;
+  }
   const multiMasc = multies?.value.find((i) => i.categorieId === categorieId && i.gender === 'm');
-  multiMascData.color = multiMasc?.color || '';
-  multiMascData.id = multiMasc?.id || undefined;
+  if (multiMasc) {
+    multiMascData.color = multiMasc?.color;
+    multiMascData.id = multiMasc?.id;
+  }
   const multiFem = multies?.value.find((i) => i.categorieId === categorieId && i.gender === 'f');
-  multiFemData.color = multiFem?.color || '';
-  multiFemData.id = multiFem?.id || undefined;
+  if (multiFem) {
+    multiFemData.color = multiFem?.color;
+    multiFemData.id = multiFem?.id;
+  }
 });
 
-const catDocRef = route.params.id ? doc(catColRef, categorieId) : undefined;
-const { data: item, pending } = catDocRef
-  ? useDocument<Categorie>(catDocRef, {
-      once: true,
-    })
-  : { data: ref<Categorie | null>(null), pending: ref(false) };
-watch(
-  [item, pending],
-  ([val, isLoading]) => {
-    if (!isLoading && val) {
-      formData.title = val.title || '';
-      formData.grades = val.grades || [];
-    }
-  },
-  { immediate: true },
-);
+const catDocRef = categorieId ? doc(catColRef, categorieId) : undefined;
 
 const handleSave = async (ev: Event) => {
   ev.preventDefault();
@@ -88,6 +84,17 @@ const handleSave = async (ev: Event) => {
     console.warn('Error saving document:', err);
   } finally {
     isBusy.value = false;
+  }
+};
+const handleRemove = async () => {
+  try {
+    multies?.value
+      .filter((multi) => multi.categorieId === categorieId)
+      .forEach(async (multi) => await deleteDoc(doc(mulColRef, multi.id)));
+    await deleteDoc(doc(catColRef, categorieId));
+    router.push({ name: 'admin-categories' });
+  } catch (error) {
+    console.warn('Error removing document:', error);
   }
 };
 </script>
@@ -116,6 +123,11 @@ const handleSave = async (ev: Event) => {
     </FieldComp>
     <div class="col-12 hstack gap-1 justify-content-end">
       <ButtonComp type="submit" variant="primary" :is-busy="isBusy">Save</ButtonComp>
+      <template v-if="categorieId"
+        ><ConfirmComp variant="danger" @confirm="handleRemove">{{
+          $t('actions.remove')
+        }}</ConfirmComp></template
+      >
     </div>
   </form>
 </template>

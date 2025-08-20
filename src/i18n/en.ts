@@ -13,8 +13,10 @@ const en = {
     },
     grade: 'Grade|Grades',
     identification: 'Identification',
+    logo: 'Logo',
     lname: 'Last name',
     role: 'Role|Roles',
+    shortTitle: 'Short title',
     sport: 'Sport|Sports',
     sports: {
       soccer: 'Soccer',
@@ -48,11 +50,15 @@ const en = {
     },
     sponsors: {
       title: 'Sponsor|Sponsors',
-      form: 'Add/Edit sponsor',
+      form: {
+        title: 'Add/Edit sponsor',
+      },
     },
     players: {
       title: 'Player|Players',
-      form: 'Add/Edit player',
+      form: {
+        title: 'Add/Edit player',
+      },
     },
     categories: {
       title: 'Categorie|Categories',

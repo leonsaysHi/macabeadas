@@ -1,35 +1,28 @@
 <script lang="ts" setup>
-import { useFirestore } from 'vuefire';
-import { useCollection } from 'vuefire';
-import { collection, deleteDoc, doc } from 'firebase/firestore';
 import DataTable from '@/components/ui/DataTableComp.vue';
-import ConfirmComp from '@/components/ui/ConfirmComp.vue';
 import { useI18n } from 'vue-i18n';
-import { inject } from 'vue';
 import type { TableItem } from '@/types/comp-datatable';
+import { collection } from 'firebase/firestore';
+import { useCollection, useFirestore } from 'vuefire';
+import type { Player } from '@/types/players';
 
 const { t } = useI18n();
 const db = useFirestore();
 const colRef = collection(db, 'players');
-
-const players = inject('players');
+const items = useCollection<Player>(colRef);
 
 const fields = [
   { key: 'fname', label: t('globals.fname') },
   { key: 'lname', label: t('globals.lname') },
-  { key: 'gender', label: t('globals.gender') },
+  {
+    key: 'gender',
+    label: t('globals.gender'),
+    formatter: (value) => t(`globals.genders.${value}`),
+  },
   { key: 'identification', label: t('globals.identification') },
   { key: 'dob', label: t('globals.dob') },
   { key: 'actions', label: '' },
 ];
-const handleRemove = async (id: string) => {
-  try {
-    await deleteDoc(doc(colRef, id));
-    console.log('Document successfully deleted!');
-  } catch (error) {
-    console.warn('Error removing document:', error);
-  }
-};
 </script>
 
 <template>
@@ -40,16 +33,14 @@ const handleRemove = async (id: string) => {
         $t('actions.add')
       }}</RouterLink>
     </div>
-    <DataTable :fields="fields" :items="players as TableItem[]">
+    <DataTable :fields="fields" :items="items">
       <template #row.actions="{ item }"
         ><div class="hstack justify-content-end gap-1">
           <RouterLink
             class="btn btn-primary"
-            :to="{ name: 'admin-player-edit', params: { id: item.docId } }"
+            :to="{ name: 'admin-player-edit', params: { playerId: item.docId as string } }"
             >{{ $t('actions.edit') }}</RouterLink
-          ><ConfirmComp variant="danger" @confirm="() => handleRemove(item.docId)">{{
-            $t('actions.remove')
-          }}</ConfirmComp>
+          >
         </div></template
       >
     </DataTable>

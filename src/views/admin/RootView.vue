@@ -2,17 +2,10 @@
 import { useRoute, useRouter, RouterView } from 'vue-router';
 import SpinnerComp from '@/components/SpinnerComp.vue';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
-import {
-  useFirebaseAuth,
-  useCurrentUser,
-  useFirestore,
-  useCollection,
-  type _RefFirestore,
-} from 'vuefire';
+import { useFirebaseAuth, useCurrentUser, useFirestore, useCollection } from 'vuefire';
 import { collection } from 'firebase/firestore';
 import { computed, provide } from 'vue';
 import type { User } from '@/types/users';
-import type { Player } from '@/types/players';
 
 const route = useRoute();
 const router = useRouter();
@@ -21,17 +14,13 @@ const db = useFirestore();
 const user = useCurrentUser();
 const auth = useFirebaseAuth()!; // only exists on client side
 
-const playersColRef = collection(db, 'players');
-const { data: players, pending: isplayersPending } = useCollection<Player>(playersColRef);
-
 // user is editor
 const colRef = collection(db, 'users');
-const users = useCollection(colRef) as _RefFirestore<User[]>;
+const users = useCollection<User>(colRef);
 const isEditor = computed<boolean>(
   () => users.value?.findIndex((u) => u.email === user.value?.email && u.role === 'editor') > -1,
 );
 provide('isEditor', isEditor);
-provide('players', players);
 
 // sign in/out
 const handleSignOut = () => signOut(auth);
@@ -58,7 +47,7 @@ onAuthStateChanged(auth, (user) => {
     </div>
   </nav>
   <div class="container-fluid py-4">
-    <template v-if="isplayersPending">
+    <template v-if="false">
       <div class="p-5 hstack justify-content-center">
         <SpinnerComp />
       </div>

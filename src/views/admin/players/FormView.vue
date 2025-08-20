@@ -1,21 +1,27 @@
 <script lang="ts" setup>
-import { useDocument, useFirestore } from 'vuefire';
-import { addDoc, collection, CollectionReference, doc, setDoc } from 'firebase/firestore';
-import FieldComp from '@/components/form/FieldComp.vue';
-import InputComp from '@/components/form/InputComp.vue';
-import SelectComp from '@/components/form/SelectComp.vue';
+import { useCollection, useDocument, useFirestore } from 'vuefire';
+import {
+  addDoc,
+  collection,
+  CollectionReference,
+  deleteDoc,
+  doc,
+  setDoc,
+} from 'firebase/firestore';
 import { computed, inject, reactive, ref, watch } from 'vue';
-import ButtonComp from '@/components/ui/ButtonComp.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import type { Gender } from '@/types/categories';
 import type { Player } from '@/types/players';
+import FieldComp from '@/components/form/FieldComp.vue';
+import InputComp from '@/components/form/InputComp.vue';
+import SelectComp from '@/components/form/SelectComp.vue';
+import ButtonComp from '@/components/ui/ButtonComp.vue';
+import ConfirmComp from '@/components/ui/ConfirmComp.vue';
 const route = useRoute();
 const router = useRouter();
 const db = useFirestore();
 const { t } = useI18n();
-
-const players = inject('players');
 
 const genderOptions = [
   {
@@ -24,11 +30,11 @@ const genderOptions = [
   },
   {
     value: 'f' as Gender,
-    text: t('globals.genders.m'),
+    text: t('globals.genders.f'),
   },
 ];
 const isBusy = ref<boolean>(false);
-const editorId: string = route.params.id as string;
+const playerId: string = route.params.playerId as string;
 const formData = reactive<Player>({
   identification: '',
   fname: '',
@@ -37,7 +43,8 @@ const formData = reactive<Player>({
   gender: genderOptions[0].value,
 });
 const colRef = collection(db, 'players') as CollectionReference<Player>;
-const docRef = editorId ? doc(colRef, editorId) : undefined;
+const docRef = playerId ? doc(colRef, playerId) : undefined;
+const items = useCollection<Player>(colRef);
 const item = docRef ? useDocument<Player>(docRef, { once: true }) : ref<Player | null>(null);
 watch(
   () => item.value,
@@ -53,7 +60,12 @@ watch(
   { immediate: true },
 );
 const duplicatedIdentification = computed(() => {
-  return players.value.findIndex((p: Player) => p.identification === formData.identification) > -1;
+  return (
+    items.value.findIndex(
+      (p: Player) =>
+        (!playerId || p.id !== playerId) && p.identification === formData.identification,
+    ) > -1
+  );
 });
 
 const handleSave = async (ev: Event) => {
@@ -70,6 +82,14 @@ const handleSave = async (ev: Event) => {
     console.warn('Error saving document:', err);
   } finally {
     isBusy.value = false;
+  }
+};
+const handleRemove = async () => {
+  try {
+    await deleteDoc(doc(colRef, playerId));
+    router.push({ name: 'admin-players' });
+  } catch (error) {
+    console.warn('Error removing document:', error);
   }
 };
 </script>
@@ -115,6 +135,11 @@ const handleSave = async (ev: Event) => {
         :is-busy="isBusy"
         >Save</ButtonComp
       >
+      <template v-if="playerId">
+        <ConfirmComp variant="danger" @confirm="handleRemove">{{
+          $t('actions.remove')
+        }}</ConfirmComp>
+      </template>
     </div>
   </form>
 </template>

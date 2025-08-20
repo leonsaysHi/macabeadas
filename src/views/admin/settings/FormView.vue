@@ -11,10 +11,8 @@ import type { Settings } from '@/types/settings';
 const router = useRouter();
 const db = useFirestore();
 const colRef = collection(db, 'settings');
-const items = useCollection(colRef);
-const docRef = computed(() =>
-  items.value?.[0]?.docId ? doc(colRef, items.value[0].docId) : undefined,
-);
+const items = useCollection<Settings>(colRef);
+const docRef = computed(() => (items.value?.[0]?.id ? doc(colRef, items.value[0].id) : undefined));
 
 const isBusy = ref<boolean>(false);
 const formData = reactive<Settings>({

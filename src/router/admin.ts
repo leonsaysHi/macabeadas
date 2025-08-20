@@ -18,7 +18,7 @@ export default [
     component: () => import('@/views/admin/editors/ListView.vue'),
   },
   {
-    path: 'editor-edit/:id?',
+    path: 'editor-edit/:userId?',
     name: 'admin-editor-edit',
     meta: { requiresAuth: true },
     component: () => import('@/views/admin/editors/FormView.vue'),
@@ -30,7 +30,7 @@ export default [
     component: () => import('@/views/admin/sponsors/ListView.vue'),
   },
   {
-    path: 'sponsor-edit/:id?',
+    path: 'sponsor-edit/:sponsorId?',
     name: 'admin-sponsor-edit',
     meta: { requiresAuth: true },
     component: () => import('@/views/admin/sponsors/FormView.vue'),
@@ -42,7 +42,7 @@ export default [
     component: () => import('@/views/admin/players/ListView.vue'),
   },
   {
-    path: 'player-edit/:id?',
+    path: 'player-edit/:playerId?',
     name: 'admin-player-edit',
     meta: { requiresAuth: true },
     component: () => import('@/views/admin/players/FormView.vue'),
@@ -54,7 +54,7 @@ export default [
     component: () => import('@/views/admin/categories/ListView.vue'),
   },
   {
-    path: 'categorie-edit/:id?',
+    path: 'categorie-edit/:categorieId?',
     name: 'admin-categorie-edit',
     meta: { requiresAuth: true },
     component: () => import('@/views/admin/categories/FormView.vue'),
@@ -82,6 +82,11 @@ export default [
         path: 'teams',
         name: 'admin-league-teams',
         component: () => import('@/views/admin/teams/ListView.vue'),
+      },
+      {
+        path: 'team/:teamId?',
+        name: 'admin-league-team-edit',
+        component: () => import('@/views/admin/teams/FormView.vue'),
       },
       {
         path: 'fases',

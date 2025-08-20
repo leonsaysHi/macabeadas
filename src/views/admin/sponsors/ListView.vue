@@ -1,28 +1,19 @@
 <script lang="ts" setup>
-import { useFirestore } from 'vuefire';
-import { useCollection } from 'vuefire';
-import { collection, deleteDoc, doc } from 'firebase/firestore';
 import DataTable from '@/components/ui/DataTableComp.vue';
-import ConfirmComp from '@/components/ui/ConfirmComp.vue';
 import { useI18n } from 'vue-i18n';
+import ImageComp from '@/components/form/ImageComp.vue';
+import { inject } from 'vue';
+import { rootProvided } from '@/types/injections';
 
 const { t } = useI18n();
-const db = useFirestore();
-const colRef = collection(db, 'sponsors');
-const items = useCollection(colRef);
+const injectedData = inject(rootProvided);
+const sponsors = injectedData?.sponsors;
 const fields = [
+  { key: 'logo', label: t('globals.logo') },
   { key: 'title', label: t('globals.title') },
-  { key: 'color', label: t('globals.color') },
+  { key: 'shortTitle', label: t('globals.shortTitle') },
   { key: 'actions', label: '' },
 ];
-const handleRemove = async (id: string) => {
-  try {
-    await deleteDoc(doc(colRef, id));
-    console.log('Document successfully deleted!');
-  } catch (error) {
-    console.warn('Error removing document:', error);
-  }
-};
 </script>
 
 <template>
@@ -33,21 +24,20 @@ const handleRemove = async (id: string) => {
         $t('actions.add')
       }}</RouterLink>
     </div>
-    <DataTable :fields="fields" :items="items" sortedKey="title">
-      <template #row.color="{ value }">
-        <div class="d-inline-block px-5 rounded-sm" :style="`background-color: ${value};`">
-          &nbsp;
+    <DataTable :fields="fields" :items="sponsors" sortedKey="title">
+      <template #row.logo="{ value, item }"
+        ><div class="d-flex gap-2">
+          <span class="px-3" :style="`background-color: ${item.color};`"> </span>
+          <ImageComp :src="value" width="50" />
         </div>
       </template>
       <template #row.actions="{ item }"
         ><div class="hstack justify-content-end gap-1">
           <RouterLink
             class="btn btn-sm btn-primary"
-            :to="{ name: 'admin-sponsor-edit', params: { id: item.docId } }"
+            :to="{ name: 'admin-sponsor-edit', params: { sponsorId: item.docId } }"
             >{{ $t('actions.edit') }}</RouterLink
-          ><ConfirmComp variant="danger" size="sm" @confirm="() => handleRemove(item.docId)">{{
-            $t('actions.remove')
-          }}</ConfirmComp>
+          >
         </div></template
       >
     </DataTable>

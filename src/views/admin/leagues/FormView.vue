@@ -24,6 +24,8 @@ const injectedData = inject(rootProvided);
 const categories = injectedData?.categories;
 const multies = injectedData?.multies;
 
+const leagueId = route.params.leagueId as string;
+
 const multiOptions = computed(() => {
   const results = Array.isArray(multies?.value)
     ? multies.value.map((item) => {
@@ -44,7 +46,6 @@ const sportOptions = SPORTS.map((value) => ({
 }));
 
 const isBusy = ref<boolean>(false);
-const leagueId = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
 const formData = reactive<League>({
   multiId: props.multiId || '',
   sport: SPORTS[0],
