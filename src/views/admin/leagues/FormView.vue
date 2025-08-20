@@ -1,0 +1,102 @@
+<script lang="ts" setup>
+import { useDocument, useFirestore } from 'vuefire';
+import { addDoc, collection, doc, setDoc } from 'firebase/firestore';
+import FieldComp from '@/components/form/FieldComp.vue';
+import SelectComp from '@/components/form/SelectComp.vue';
+import { defineProps, computed, inject, reactive, ref, watch } from 'vue';
+import ButtonComp from '@/components/ui/ButtonComp.vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+import type { League, Sport } from '@/types/leagues';
+import { rootProvided } from '@/types/injections';
+import type { Categorie } from '@/types/categories';
+
+const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
+const db = useFirestore();
+
+const props = defineProps({
+  multiId: String,
+});
+
+const injectedData = inject(rootProvided);
+const categories = injectedData?.categories;
+const multies = injectedData?.multies;
+
+const multiOptions = computed(() => {
+  const results = Array.isArray(multies?.value)
+    ? multies.value.map((item) => {
+        const cat = categories?.value?.find((i) => i.id === item.categorieId) as Categorie;
+        return {
+          value: item.id,
+          text: `${cat.title} ${t(`globals.genders.${item.gender}`)}`,
+        };
+      })
+    : [];
+  return results;
+});
+
+const SPORTS: Sport[] = ['soccer', 'basketball', 'flag', 'baseball', 'kickball', 'volleyball'];
+const sportOptions = SPORTS.map((value) => ({
+  value,
+  text: t(`globals.sports.${value}`),
+}));
+
+const isBusy = ref<boolean>(false);
+const leagueId = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
+const formData = reactive<League>({
+  multiId: props.multiId || '',
+  sport: SPORTS[0],
+});
+const colRef = collection(db, 'leagues');
+const docRef = leagueId ? doc(colRef, leagueId) : undefined;
+const item = docRef
+  ? useDocument(docRef, {
+      once: true,
+    })
+  : ref();
+watch(item, (val) => {
+  formData.multiId = val?.multiId;
+  formData.sport = val?.sport;
+});
+
+const handleSave = async (ev: Event) => {
+  ev.preventDefault();
+  isBusy.value = true;
+  try {
+    if (docRef) {
+      await setDoc(docRef, formData, { merge: true });
+    } else {
+      await addDoc(colRef, formData);
+    }
+    router.push({ name: 'admin' });
+  } catch (err) {
+    console.warn('Error saving document:', err);
+  } finally {
+    isBusy.value = false;
+  }
+};
+</script>
+
+<template>
+  <div class="hstack justify-content-between">
+    <h2>
+      {{ $t('admin.leagues.form.title') }}
+    </h2>
+    <template v-if="item?.id">
+      <small class="text-body-secondary">{{ item.id }}</small>
+    </template>
+  </div>
+  <form class="row g-3" @submit="handleSave">
+    <FieldComp class="col-md-6" :label="$t('globals.categorie')">
+      <SelectComp v-model="formData.multiId" :options="multiOptions" required />
+    </FieldComp>
+    <FieldComp class="col-md-6" :label="$t('globals.sport')">
+      <SelectComp v-model="formData.sport" :options="sportOptions" required />
+    </FieldComp>
+    <div class="col-12 hstack gap-1 justify-content-end">
+      <ButtonComp type="submit" variant="primary" :is-busy="isBusy">Save</ButtonComp>
+    </div>
+  </form>
+</template>
