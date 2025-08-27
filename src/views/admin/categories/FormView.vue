@@ -121,6 +121,7 @@ const handleRemove = async () => {
     <FieldComp class="col-md-6" :label="$t('globals.genders.f')">
       <InputComp v-model="multiFemData.color" type="color" required />
     </FieldComp>
+    <hr />
     <div class="col-12 hstack gap-1 justify-content-end">
       <ButtonComp type="submit" variant="primary" :is-busy="isBusy">Save</ButtonComp>
       <template v-if="categorieId"

@@ -26,15 +26,15 @@ const fields = [
     </div>
     <DataTable :fields="fields" :items="sponsors" sortedKey="title">
       <template #row.logo="{ value, item }"
-        ><div class="d-flex gap-2">
-          <span class="px-3" :style="`background-color: ${item.color};`"> </span>
-          <ImageComp :src="value" width="50" />
+        ><div class="hstack gap-2">
+          <span class="px-3 align-self-stretch" :style="`background-color: ${item.color};`"> </span>
+          <ImageComp :src="value as string" :width="40" />
         </div>
       </template>
       <template #row.actions="{ item }"
         ><div class="hstack justify-content-end gap-1">
           <RouterLink
-            class="btn btn-sm btn-primary"
+            class="btn btn-light"
             :to="{ name: 'admin-sponsor-edit', params: { sponsorId: item.docId } }"
             >{{ $t('actions.edit') }}</RouterLink
           >

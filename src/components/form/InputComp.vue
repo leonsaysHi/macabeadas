@@ -1,5 +1,6 @@
 <template>
   <input
+    ref="inputEl"
     v-model="model"
     :type="type"
     class="form-control"
@@ -17,9 +18,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, useTemplateRef } from 'vue';
 interface IProps {
-  modelValue: string | number | undefined;
+  modelValue: string | number | Date | undefined;
   type?: 'text' | 'number' | 'email' | 'file' | 'date' | 'datetime-local' | 'color' | 'hidden';
   placeholder?: string;
   readonly?: boolean;
@@ -46,11 +47,12 @@ const props = withDefaults(defineProps<IProps>(), {
   isValid: false,
   isInvalid: false,
 });
+const inputEl = useTemplateRef('inputEl');
 const emit = defineEmits(['update:modelValue', 'input', 'validate', 'on-enter-key', 'change']);
 const model = computed({
   get: () => props.modelValue,
   set: (val) => {
-    emit('update:modelValue', val);
+    emit('update:modelValue', props.type === 'date' ? new Date(val) : val);
   },
 });
 const computedClass = computed(() => {

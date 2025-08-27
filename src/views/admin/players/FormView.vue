@@ -8,7 +8,7 @@ import {
   doc,
   setDoc,
 } from 'firebase/firestore';
-import { computed, inject, reactive, ref, watch } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import type { Gender } from '@/types/categories';
@@ -18,6 +18,9 @@ import InputComp from '@/components/form/InputComp.vue';
 import SelectComp from '@/components/form/SelectComp.vue';
 import ButtonComp from '@/components/ui/ButtonComp.vue';
 import ConfirmComp from '@/components/ui/ConfirmComp.vue';
+import { playerConverter } from '@/utils/firestore';
+import DateInputComp from '@/components/form/DateInputComp.vue';
+
 const route = useRoute();
 const router = useRouter();
 const db = useFirestore();
@@ -39,28 +42,31 @@ const formData = reactive<Player>({
   identification: '',
   fname: '',
   lname: '',
-  dob: '',
+  dob: new Date(),
   gender: genderOptions[0].value,
 });
-const colRef = collection(db, 'players') as CollectionReference<Player>;
+const colRef = collection(db, 'players').withConverter(
+  playerConverter,
+) as CollectionReference<Player>;
 const docRef = playerId ? doc(colRef, playerId) : undefined;
 const items = useCollection<Player>(colRef);
 const item = docRef ? useDocument<Player>(docRef, { once: true }) : ref<Player | null>(null);
 watch(
   () => item.value,
-  (val: Player | null | undefined) => {
+  (val) => {
     if (val) {
       formData.identification = val.identification || '';
       formData.fname = val.fname || '';
       formData.lname = val.lname || '';
       formData.gender = val.gender || genderOptions[0].value;
-      formData.dob = val.dob || '';
+      formData.dob = val.dob || new Date();
     }
   },
   { immediate: true },
 );
-const duplicatedIdentification = computed(() => {
+const isDuplicatedIdentification = computed(() => {
   return (
+    !isBusy.value &&
     items.value.findIndex(
       (p: Player) =>
         (!playerId || p.id !== playerId) && p.identification === formData.identification,
@@ -73,9 +79,9 @@ const handleSave = async (ev: Event) => {
   isBusy.value = true;
   try {
     if (docRef) {
-      await setDoc(docRef, formData, { merge: true });
+      await setDoc(docRef, { ...formData }, { merge: true });
     } else {
-      await addDoc(colRef, formData);
+      await addDoc(colRef, { ...formData });
     }
     router.push({ name: 'admin-players' });
   } catch (err) {
@@ -97,7 +103,7 @@ const handleRemove = async () => {
 <template>
   <div class="hstack justify-content-between">
     <h2>
-      {{ $t('admin.editors.form.title') }}
+      {{ $t('admin.players.form.title') }}
     </h2>
     <template v-if="item?.id">
       <small class="text-body-secondary">{{ item.id }}</small>
@@ -107,11 +113,11 @@ const handleRemove = async () => {
     <FieldComp
       class="col-md-6"
       :label="$t('globals.identification')"
-      :invalid-feedback="duplicatedIdentification ? 'Identification is duplicated' : undefined"
+      :invalid-feedback="isDuplicatedIdentification ? 'Identification is duplicated' : undefined"
     >
       <InputComp
         v-model="formData.identification"
-        :is-invalid="duplicatedIdentification"
+        :is-invalid="isDuplicatedIdentification"
         required
       />
     </FieldComp>
@@ -125,13 +131,15 @@ const handleRemove = async () => {
       <SelectComp v-model="formData.gender" :options="genderOptions" required />
     </FieldComp>
     <FieldComp class="col-md-6" :label="$t('globals.dob')">
-      <InputComp v-model="formData.dob" type="date" required />
+      <DateInputComp v-model="formData.dob" required />
+      <!--<InputComp v-model="formData.dob" type="date" required />-->
     </FieldComp>
+    <hr />
     <div class="col-12 hstack gap-1 justify-content-end">
       <ButtonComp
         type="submit"
         variant="primary"
-        :disabled="duplicatedIdentification"
+        :disabled="isDuplicatedIdentification"
         :is-busy="isBusy"
         >Save</ButtonComp
       >

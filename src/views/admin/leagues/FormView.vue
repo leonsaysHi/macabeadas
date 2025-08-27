@@ -96,6 +96,7 @@ const handleSave = async (ev: Event) => {
     <FieldComp class="col-md-6" :label="$t('globals.sport')">
       <SelectComp v-model="formData.sport" :options="sportOptions" required />
     </FieldComp>
+    <hr />
     <div class="col-12 hstack gap-1 justify-content-end">
       <ButtonComp type="submit" variant="primary" :is-busy="isBusy">Save</ButtonComp>
     </div>

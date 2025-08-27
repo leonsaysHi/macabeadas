@@ -9,5 +9,5 @@ export interface Player {
   lname: string;
   gender: Gender;
   identification: string;
-  dob: string;
+  dob: Date;
 }

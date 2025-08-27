@@ -46,18 +46,18 @@ provide(adminLeagueProvided, {
   </h2>
   <ul class="nav nav-tabs mb-4">
     <li class="nav-item">
-      <RouterLink class="nav-link" :to="{ name: 'admin-league', params: { leagueId } }">
-        {{ $t('admin.games.title', 2) }}
-      </RouterLink>
-    </li>
-    <li class="nav-item">
       <RouterLink class="nav-link" :to="{ name: 'admin-league-teams', params: { leagueId } }">
-        {{ $t('admin.teams.title', 2) }}
+        {{ teams?.length || '0' }} {{ $t('admin.teams.title', teams?.length || 2) }}
       </RouterLink>
     </li>
     <li class="nav-item">
       <RouterLink class="nav-link" :to="{ name: 'admin-league-fases', params: { leagueId } }">
         {{ $t('admin.fases.title', 2) }}
+      </RouterLink>
+    </li>
+    <li class="nav-item">
+      <RouterLink class="nav-link" :to="{ name: 'admin-league', params: { leagueId } }">
+        {{ games?.length || '0' }} {{ $t('admin.games.title', games?.length || 0) }}
       </RouterLink>
     </li>
   </ul>

@@ -12,8 +12,7 @@ const injectedData = inject(rootProvided);
 const categories = injectedData?.categories;
 const multies = injectedData?.multies;
 const leagues = injectedData?.leagues;
-
-const isEditor = inject('isEditor');
+const isEditor = injectedData?.isEditor;
 
 const byCategories = computed(() => {
   const result = categories?.value.map((cat: Categorie) => ({
@@ -52,6 +51,11 @@ const byCategories = computed(() => {
       <li class="nav-item">
         <RouterLink class="nav-link" aria-current="page" :to="{ name: 'admin-players' }">{{
           $t('admin.players.title', 2)
+        }}</RouterLink>
+      </li>
+      <li class="nav-item">
+        <RouterLink class="nav-link" aria-current="page" :to="{ name: 'admin-facilities' }">{{
+          $t('admin.facilities.title', 2)
         }}</RouterLink>
       </li>
       <li class="nav-item">

@@ -26,14 +26,14 @@ const fields = [
     key: 'colorM',
     label: t('globals.genders.m'),
     sortByFormatted: true,
-    formatter: (value, item: Categorie) =>
+    formatter: (value: string | undefined, item: Categorie) =>
       multies?.value.find((m) => m.categorieId === item.id && m.gender === 'm')?.color,
   },
   {
     key: 'colorF',
     label: t('globals.genders.f'),
     sortByFormatted: true,
-    formatter: (value, item: Categorie) =>
+    formatter: (value: string | undefined, item: Categorie) =>
       multies?.value.find((m) => m.categorieId === item.id && m.gender === 'f')?.color,
   },
   { key: 'actions', label: '' },
@@ -58,7 +58,7 @@ const fields = [
       <template #row.actions="{ item }"
         ><div class="hstack justify-content-end gap-1">
           <RouterLink
-            class="btn btn-sm btn-primary"
+            class="btn btn-sm btn-light"
             :to="{ name: 'admin-categorie-edit', params: { categorieId: item.docId } }"
             >{{ $t('actions.edit') }}</RouterLink
           >

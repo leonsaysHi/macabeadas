@@ -3,8 +3,10 @@ const en = {
     ays: 'Are you sure?',
     categorie: 'Categorie|Categories',
     color: 'Color',
+    court: 'Court|Courts',
     dob: 'Date of birth',
     email: 'Email',
+    error: 'Error|Errors',
     fname: 'First name',
     gender: 'Gender|Genders',
     genders: {
@@ -13,10 +15,16 @@ const en = {
     },
     grade: 'Grade|Grades',
     identification: 'Identification',
+    link: 'Link|Links',
     logo: 'Logo',
     lname: 'Last name',
+    map: 'Map',
+    name: 'Name',
+    number: 'Number|Numbers',
+    player: 'Player|Players',
     role: 'Role|Roles',
     shortTitle: 'Short title',
+    sponsor: 'Sponsor|Sponsors',
     sport: 'Sport|Sports',
     sports: {
       soccer: 'Soccer',
@@ -32,9 +40,16 @@ const en = {
   },
   actions: {
     add: 'Add',
+    addPlayer: 'Add player|Add players',
+    cancel: 'Cancel',
+    create: 'Create',
     edit: 'Edit',
+    editPlayer: 'Edit player|Edit players',
+    import: 'Import',
+    ok: 'OK',
     remove: 'Remove',
     signout: 'Sign out',
+    update: 'Update',
   },
   admin: {
     'add-edit': 'Add/Edit',
@@ -58,6 +73,18 @@ const en = {
       title: 'Player|Players',
       form: {
         title: 'Add/Edit player',
+      },
+    },
+    facilities: {
+      title: 'Facility| Facilities',
+      form: {
+        title: 'Add/Edit facility',
+      },
+    },
+    courts: {
+      title: 'Court| Courts',
+      form: {
+        title: 'Add/Edit court',
       },
     },
     categories: {
@@ -86,8 +113,26 @@ const en = {
     },
     teams: {
       title: 'Team|Teams',
+      nbPlayers: 'Number of players',
       form: {
         title: 'Add/Edit team',
+        importTo: 'Import to',
+        addToTeam: 'Add team',
+        updateToTeam: 'Update team',
+        addToDatabase: 'Add informations',
+        updateToDatabase: 'Update informations',
+        counts: {
+          playerInformations: 'Players informations',
+          teamPlayers: 'Players in team',
+          add: 'add',
+          add: 'add',
+          update: '{count} to update',
+          error: '{count} error|{count} errors',
+        },
+        error: {
+          duplicatedNumber: 'Number is already used',
+          duplicatedPlayer: 'Player already in the league',
+        },
       },
     },
     fases: {

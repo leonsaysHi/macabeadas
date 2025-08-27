@@ -100,6 +100,7 @@ const handleRemove = async () => {
       <ImageUpload v-model="logoUpload" :src="formData.logo" :disabled="!!uploadTask" />
       {{ uploadError }}
     </FieldComp>
+    <hr />
     <div class="col-12 hstack gap-1 justify-content-end">
       <ButtonComp type="submit" variant="primary" :is-busy="isBusy">Save</ButtonComp>
       <template v-if="sponsorId">

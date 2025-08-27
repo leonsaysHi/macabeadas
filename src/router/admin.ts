@@ -48,6 +48,18 @@ export default [
     component: () => import('@/views/admin/players/FormView.vue'),
   },
   {
+    path: 'facilities',
+    name: 'admin-facilities',
+    meta: { requiresAuth: true },
+    component: () => import('@/views/admin/facilities/ListView.vue'),
+  },
+  {
+    path: 'facilitie-edit/:facilitieId?',
+    name: 'admin-facilitie-edit',
+    meta: { requiresAuth: true },
+    component: () => import('@/views/admin/facilities/FormView.vue'),
+  },
+  {
     path: 'categories',
     name: 'admin-categories',
     meta: { requiresAuth: true },
@@ -70,14 +82,11 @@ export default [
   },
   {
     path: 'league/:leagueId',
+    name: 'admin-league',
+    redirect: { name: 'admin-league-teams' },
     meta: { requiresAuth: true },
     component: () => import('@/views/admin/leagues/HomeView.vue'),
     children: [
-      {
-        path: 'games',
-        name: 'admin-league',
-        component: () => import('@/views/admin/games/ListView.vue'),
-      },
       {
         path: 'teams',
         name: 'admin-league-teams',
@@ -92,6 +101,11 @@ export default [
         path: 'fases',
         name: 'admin-league-fases',
         component: () => import('@/views/admin/fases/ListView.vue'),
+      },
+      {
+        path: 'games',
+        name: 'admin-league-games',
+        component: () => import('@/views/admin/games/ListView.vue'),
       },
     ],
   },

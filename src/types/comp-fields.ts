@@ -1,10 +1,10 @@
 export type Option = {
-  text: string
-  long?: string
-  value: string | number | undefined | boolean
-  disabled?: boolean
-}
-export type Size = 'lg' | 'md' | 'sm'
+  text: string;
+  long?: string;
+  value: string | number | undefined | boolean;
+  disabled?: boolean;
+};
+export type Size = 'xl' | 'lg' | 'md' | 'sm';
 export type Variant =
   | 'primary'
   | 'outline-primary'
@@ -15,4 +15,4 @@ export type Variant =
   | 'warning'
   | 'success'
   | 'dark'
-  | 'link'
+  | 'link';

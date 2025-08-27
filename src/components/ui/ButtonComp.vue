@@ -1,5 +1,5 @@
 <template>
-  <button :type="type" class="btn" :class="computedClass" :disabled="disabled || isBusy">
+  <button :type="type" :class="computedClass" :disabled="disabled || isBusy">
     <template v-if="isBusy"><SpinnerComp variant="light" size="sm" /></template><slot>?</slot>
   </button>
 </template>
@@ -29,17 +29,12 @@ const props = withDefaults(defineProps<IProps>(), {
 });
 
 const computedClass = computed(() => {
-  const result = [];
-  if (typeof props.variant === 'string' && props.variant.length) {
-    result.push(`btn-${props.variant}`);
-  }
-  if (!props.noFlex) {
-    result.push('d-flex align-items-center gap-3');
-  }
-  if (props.size !== 'md') {
-    result.push(`btn-${props.size}`);
-  }
-  return result;
+  return [
+    'btn',
+    typeof props.variant === 'string' && props.variant.length && `btn-${props.variant}`,
+    props.size !== 'md' && `btn-${props.size}`,
+    !props.noFlex && 'd-inline-flex align-items-center gap-3',
+  ];
 });
 </script>
 

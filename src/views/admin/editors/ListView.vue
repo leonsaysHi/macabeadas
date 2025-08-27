@@ -29,7 +29,7 @@ const fields = [
       <template #row.actions="{ item }"
         ><div class="hstack justify-content-end gap-1">
           <RouterLink
-            class="btn btn-primary"
+            class="btn btn-light"
             :to="{ name: 'admin-editor-edit', params: { userId: item.docId } }"
             >{{ $t('actions.edit') }}</RouterLink
           >

@@ -40,6 +40,7 @@
     "vite-plugin-vue-devtools": "^8.0.0",
     "vue-i18n": "^11.1.11",
     "vue-tsc": "^3.0.4",
-    "vuefire": "^3.2.2"
+    "vuefire": "^3.2.2",
+    "xlsx": "^0.18.5"
   }
 }

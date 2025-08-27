@@ -90,6 +90,7 @@ const handleRemove = async () => {
     <FieldComp class="col-md-6" :label="$t('globals.role')">
       <SelectComp v-model="formData.role" :options="roleOptions" disabled required />
     </FieldComp>
+    <hr />
     <div class="col-12 hstack gap-1 justify-content-end">
       <ButtonComp type="submit" variant="primary" :is-busy="isBusy">Save</ButtonComp>
       <template v-if="userId">

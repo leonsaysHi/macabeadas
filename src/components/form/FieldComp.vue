@@ -1,8 +1,11 @@
 <template>
-  <div class="mb-3">
+  <div :class="[!props.inline && 'mb-3']">
     <template v-if="props.label">
-      <label class="form-label">{{ label }}<template v-if="required"><sup class="text-danger">*</sup></template></label>
+      <label class="form-label"
+        >{{ label }}<template v-if="required"><sup class="text-danger">*</sup></template></label
+      >
     </template>
+    <slot name="label"></slot>
     <slot></slot>
     <template v-if="props.helper">
       <div class="lh-1 small text-body-secondary">{{ helper }}</div>
@@ -15,15 +18,17 @@
 
 <script setup lang="ts">
 interface IProps {
-  label?: string | undefined
-  required?: boolean
-  helper?: string | undefined
-  invalidFeedback?: string | undefined
+  label?: string | undefined;
+  required?: boolean;
+  helper?: string | undefined;
+  invalidFeedback?: string | undefined;
+  inline?: boolean;
 }
 const props = withDefaults(defineProps<IProps>(), {
   label: undefined,
   required: false,
   helper: undefined,
-  invalidFeedback: undefined
-})
+  invalidFeedback: undefined,
+  inline: false,
+});
 </script>
