@@ -1,5 +1,6 @@
+export type SponsorId = string;
 export interface Sponsor {
-  id?: string;
+  id?: SponsorId;
   title: string;
   shortTitle: string;
   color: string | number;

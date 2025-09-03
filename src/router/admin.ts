@@ -103,9 +103,19 @@ export default [
         component: () => import('@/views/admin/fases/ListView.vue'),
       },
       {
+        path: 'fase/:faseId?',
+        name: 'admin-league-fase-edit',
+        component: () => import('@/views/admin/fases/FormView.vue'),
+      },
+      {
         path: 'games',
         name: 'admin-league-games',
         component: () => import('@/views/admin/games/ListView.vue'),
+      },
+      {
+        path: 'game/:gameId?',
+        name: 'admin-league-game-edit',
+        component: () => import('@/views/admin/games/FormView.vue'),
       },
     ],
   },

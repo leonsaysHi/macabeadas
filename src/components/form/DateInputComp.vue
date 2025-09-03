@@ -1,6 +1,6 @@
 <template>
   <input
-    v-model="value"
+    v-model="model"
     :type="type"
     :class="computedClass"
     :placeholder="placeholder"
@@ -39,15 +39,22 @@ const props = withDefaults(defineProps<IProps>(), {
 
 const emit = defineEmits(['update:modelValue', 'input', 'validate', 'change']);
 
-const value = computed(() => {
-  if (!(props.modelValue instanceof Date)) {
-    throw new Error('Invalid "date" argument. You must pass a date instance');
-  }
-  return format(props.modelValue, 'yyyy-MM-dd');
+const model = computed({
+  get: () =>
+    props.modelValue instanceof Date
+      ? props.type === 'datetime-local'
+        ? `${format(props.modelValue, 'yyyy-MM-dd')}T${format(props.modelValue, 'HH:mm')}`
+        : format(props.modelValue, 'yyyy-MM-dd')
+      : props.modelValue,
+  set: (val) => {
+    emit('update:modelValue', val ? parseISO(val) : undefined);
+  },
 });
+
 const handleUpdate = (ev: Event) => {
   emit('update:modelValue', parseISO(ev.target?.value));
 };
+
 const computedClass = computed(() => {
   return [
     'form-control',

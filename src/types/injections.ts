@@ -8,6 +8,7 @@ import type { Game } from './games';
 import type { Settings } from './settings';
 import type { Player } from './players';
 import type { Court, Facilitie } from './facilities';
+import type { Fase } from './fases';
 
 export const rootProvided = Symbol() as InjectionKey<{
   settings: ComputedRef<Settings>;
@@ -22,6 +23,10 @@ export const rootProvided = Symbol() as InjectionKey<{
 }>;
 
 export const adminLeagueProvided = Symbol() as InjectionKey<{
+  league: Ref<League | undefined>;
+  multi: Ref<Multi | undefined>;
+  categorie: Ref<Categorie | undefined>;
   teams: Ref<Team[]>;
   games: Ref<Game[]>;
+  fases: Ref<Fase[]>;
 }>;

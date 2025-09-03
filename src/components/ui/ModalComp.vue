@@ -114,6 +114,7 @@ myModalComponent.value?.show() | myModalComponent.value?.hide()
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { Modal } from 'bootstrap';
 import ButtonComp from './ButtonComp.vue';
+import type { Size } from '@/types/comp-fields';
 
 interface IProps {
   isCentered?: boolean;
@@ -121,7 +122,7 @@ interface IProps {
   modelValue?: boolean;
   isShown?: boolean;
   title?: string | undefined;
-  size?: 'lg' | 'md' | 'sm';
+  size?: Size;
   hideHeader?: boolean;
   hideFooter?: boolean;
   hideOk?: boolean;

@@ -2,6 +2,9 @@ export type FacilitieId = string;
 export type CourtId = string;
 
 // data
+export interface CourtDetails extends Facilitie {
+  courtTitle: string;
+}
 export interface Court {
   id?: CourtId;
   facilitieId: FacilitieId;

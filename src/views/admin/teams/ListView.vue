@@ -3,26 +3,33 @@ import { useI18n } from 'vue-i18n';
 import DataTable from '@/components/ui/DataTableComp.vue';
 import ConfirmComp from '@/components/ui/ConfirmComp.vue';
 import { inject } from 'vue';
-import { adminLeagueProvided, rootProvided } from '@/types/injections';
+import { adminLeagueProvided } from '@/types/injections';
 import type { TableField } from '@/types/comp-datatable';
 import ImageComp from '@/components/form/ImageComp.vue';
-import type { Sponsor } from '@/types/sponsors';
+import type { SponsorId } from '@/types/sponsors';
+import useLeague from '@/composables/useLeague';
+import type { Team } from '@/types/teams';
 
 const { t } = useI18n();
-// const route = useRoute();
-const injectedData = inject(rootProvided);
-// const leagues = injectedData?.leagues;
-const sponsors = injectedData?.sponsors;
 
 const injectedAdminLeagueData = inject(adminLeagueProvided);
 const teams = injectedAdminLeagueData?.teams;
 
+const { getSponsor } = useLeague();
+
 const fields: TableField[] = [
   {
-    key: 'sponsorId',
+    key: 'logo',
+    label: '',
+    formatter: (value, item: Team): string | undefined => {
+      return getSponsor(item?.sponsorId)?.logo;
+    },
+  },
+  {
+    key: 'title',
     label: t('globals.title'),
-    formatter: (value: string | undefined): Sponsor | undefined => {
-      return sponsors?.value.find((item) => item.id === value);
+    formatter: (value, item: Team | undefined): string | undefined => {
+      return getSponsor(item?.sponsorId as SponsorId)?.title;
     },
   },
   {
@@ -43,11 +50,13 @@ const fields: TableField[] = [
       }}</RouterLink>
     </div>
     <DataTable :fields="fields" :items="teams" sortedKey="title">
-      <template #row.sponsorId="{ value }">
+      <template #row.logo="{ value, item }">
         <div class="hstack gap-2">
-          <span class="px-3 align-self-stretch" :style="`background-color: ${value.color};`"></span>
-          <ImageComp :src="value.logo" :width="30" />
-          <span>{{ value.title }}</span>
+          <ImageComp :src="value" :width="35" />
+          <span
+            class="px-2 align-self-stretch"
+            :style="`background-color: ${getSponsor(item.sponsorId)?.color};`"
+          ></span>
         </div>
       </template>
       <template #row.actions="{ item }"

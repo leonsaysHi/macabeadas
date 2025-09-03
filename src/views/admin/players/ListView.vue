@@ -15,8 +15,22 @@ const colRef = collection(db, 'players').withConverter(
 const items = useCollection<Player>(colRef);
 
 const fields = [
-  { key: 'fname', label: t('globals.fname') },
-  { key: 'lname', label: t('globals.lname') },
+  {
+    key: 'fname',
+    label: t('globals.fname'),
+    formatter: (value, item) => {
+      const { fname1, fname2 } = item;
+      return [fname1, fname2].filter(Boolean).join(' ');
+    },
+  },
+  {
+    key: 'lname',
+    label: t('globals.lname'),
+    formatter: (value, item) => {
+      const { lname1, lname2 } = item;
+      return [lname1, lname2].filter(Boolean).join(' ');
+    },
+  },
   {
     key: 'gender',
     label: t('globals.gender'),
@@ -46,7 +60,7 @@ const fields = [
         ><div class="hstack justify-content-end gap-1">
           <RouterLink
             class="btn btn-light btn-sm"
-            :to="{ name: 'admin-player-edit', params: { playerId: item.docId as string } }"
+            :to="{ name: 'admin-player-edit', params: { playerId: item.id as string } }"
             >{{ $t('actions.edit') }}</RouterLink
           >
         </div></template

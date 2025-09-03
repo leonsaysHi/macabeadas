@@ -40,8 +40,10 @@ const isBusy = ref<boolean>(false);
 const playerId: string = route.params.playerId as string;
 const formData = reactive<Player>({
   identification: '',
-  fname: '',
-  lname: '',
+  fname1: '',
+  fname2: '',
+  lname1: '',
+  lname2: '',
   dob: new Date(),
   gender: genderOptions[0].value,
 });
@@ -56,8 +58,10 @@ watch(
   (val) => {
     if (val) {
       formData.identification = val.identification || '';
-      formData.fname = val.fname || '';
-      formData.lname = val.lname || '';
+      formData.fname1 = val.fname1 || '';
+      formData.fname2 = val.fname2 || '';
+      formData.lname1 = val.lname1 || '';
+      formData.lname2 = val.lname2 || '';
       formData.gender = val.gender || genderOptions[0].value;
       formData.dob = val.dob || new Date();
     }
@@ -121,11 +125,17 @@ const handleRemove = async () => {
         required
       />
     </FieldComp>
-    <FieldComp class="col-md-6" :label="$t('globals.fname')">
-      <InputComp v-model="formData.fname" required />
+    <FieldComp class="col-md-6" :label="`${$t('globals.fname')} 1`">
+      <InputComp v-model="formData.fname1" required />
     </FieldComp>
-    <FieldComp class="col-md-6" :label="$t('globals.lname')">
-      <InputComp v-model="formData.lname" required />
+    <FieldComp class="col-md-6" :label="`${$t('globals.lname')} 1`">
+      <InputComp v-model="formData.lname1" required />
+    </FieldComp>
+    <FieldComp class="col-md-6" :label="`${$t('globals.fname')} 2`">
+      <InputComp v-model="formData.fname2" />
+    </FieldComp>
+    <FieldComp class="col-md-6" :label="`${$t('globals.lname')} 2`">
+      <InputComp v-model="formData.lname2" />
     </FieldComp>
     <FieldComp class="col-md-6" :label="$t('globals.gender')">
       <SelectComp v-model="formData.gender" :options="genderOptions" required />

@@ -52,7 +52,7 @@ const emit = defineEmits(['update:modelValue', 'input', 'validate', 'on-enter-ke
 const model = computed({
   get: () => props.modelValue,
   set: (val) => {
-    emit('update:modelValue', props.type === 'date' ? new Date(val) : val);
+    emit('update:modelValue', props.type.includes('date') ? new Date(val) : val);
   },
 });
 const computedClass = computed(() => {

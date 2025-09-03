@@ -76,7 +76,7 @@
   </table>
   <div v-if="showEmpty && !computedItems?.length">
     <slot name="empty">
-      <p class="text-center text-secondary mt-2">No result.</p>
+      <p class="text-center text-secondary mt-2">{{ $t('globals.noData') }}.</p>
     </slot>
   </div>
 </template>
@@ -115,7 +115,7 @@ const props = withDefaults(defineProps<IProps>(), {
   currentPage: 1,
   small: false,
   isBusy: false,
-  showEmpty: false,
+  showEmpty: true,
   ascOnly: false,
   descOnly: false,
 });
@@ -159,7 +159,7 @@ const computedItems = computed(() => {
   const computedKeys = [
     ...Object.keys(results[0] || {}),
     ...props.fields
-      .filter((field, idx) => field.formatter && !Object.keys(results[0] || {}).includes(field.key))
+      .filter((field) => field.formatter && !Object.keys(results[0] || {}).includes(field.key))
       .map((f) => f.key),
   ];
   return results.slice(sliceFirstIdx, sliceEnd).map((row: TableItem, idx: number) => {

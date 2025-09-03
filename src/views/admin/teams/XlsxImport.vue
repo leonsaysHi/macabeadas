@@ -6,33 +6,37 @@
     <template v-if="comparedItems.length">
       <DataTableComp :fields="fields" :items="comparedItems" small>
         <template #row.identification="{ value, item }">
-          <BadgeComp :variant="item.compared.updatePlayer ? 'warning' : 'success'">{{
-            value
-          }}</BadgeComp>
+          <BadgeComp
+            :variant="
+              item.compared.noId ? 'danger' : item.compared.updatePlayer ? 'warning' : 'success'
+            "
+            >{{ item.compared.noId ? '...' : value }}</BadgeComp
+          >
         </template>
         <template #row.number="{ value, item }">
           <BadgeComp
             :variant="
               item.compared.duplicatedNumber
                 ? 'danger'
-                : item.compared.updateTeamPlayer
-                  ? 'warning'
-                  : 'success'
+                : item.compared.duplicatedPlayer
+                  ? 'secondary'
+                  : item.compared.updateTeamPlayer
+                    ? 'warning'
+                    : 'success'
             "
             >{{ value }}</BadgeComp
           >
         </template>
         <template #row.name="{ item }">
           {{ `${item.fname} ${item.lname}` }}<br /><template v-if="item.compared.updatePlayer"
-            ><BadgeComp variant="light" class="fw-normal">{{
+            ><BadgeComp variant="light" class="fw-normal text-decoration-line-through">{{
               `${item.compared.updatePlayer.fname} ${item.compared.updatePlayer.lname}`
             }}</BadgeComp></template
           >
         </template>
         <template #row.dob="{ value, item }">
           <DateFormat :value="value" /><br /><template v-if="item.compared.updatePlayer"
-            ><BadgeComp variant="light" class="fw-normal"
-              >{{ item.compared.updatePlayer.dob }}
+            ><BadgeComp variant="light" class="fw-normal text-decoration-line-through">
               <DateFormat :value="item.compared.updatePlayer.dob" /> </BadgeComp
           ></template>
         </template>
@@ -75,19 +79,20 @@
         <div class="hstack gap-2 small">
           <span>{{ $t('admin.teams.form.counts.playerInformations') }}:</span>
           <BadgeComp variant="success"
-            >{{ $t('actions.create')
-            }}{{ comparedItems.filter((item) => !item.compared.updatePlayer).length }}</BadgeComp
+            >{{ $t('actions.create') }}&nbsp;{{
+              comparedItems.filter((item) => !item.compared.updatePlayer).length
+            }}</BadgeComp
           >
           <BadgeComp variant="warning"
-            >{{ $t('actions.update')
-            }}{{ comparedItems.filter((item) => item.compared.updatePlayer).length }}</BadgeComp
+            >{{ $t('actions.update') }}&nbsp;{{
+              comparedItems.filter((item) => item.compared.updatePlayer).length
+            }}</BadgeComp
           >
         </div>
         <div class="hstack gap-2 small">
           <span>{{ $t('admin.teams.form.counts.teamPlayers') }}:</span>
           <BadgeComp variant="success"
-            >{{ $t('actions.add')
-            }}{{
+            >{{ $t('actions.add') }}&nbsp;{{
               comparedItems.filter(
                 (item) =>
                   !item.compared.updateTeamPlayer &&
@@ -97,16 +102,16 @@
             }}</BadgeComp
           >
           <BadgeComp variant="warning"
-            >{{ $t('actions.update')
-            }}{{ comparedItems.filter((item) => item.compared.updateTeamPlayer).length }}</BadgeComp
+            >{{ $t('actions.update') }}&nbsp;{{
+              comparedItems.filter((item) => item.compared.updateTeamPlayer).length
+            }}</BadgeComp
           >
           <BadgeComp variant="danger"
             >{{
               comparedItems.filter(
                 (item) => item.compared.duplicatedNumber || item.compared.duplicatedPlayer,
               ).length
-            }}
-            {{ $t('globals.error', 2) }}</BadgeComp
+            }}&nbsp;{{ $t('globals.error', 2) }}</BadgeComp
           >
         </div>
       </template>
@@ -130,6 +135,7 @@ import { playerConverter } from '@/utils/firestore';
 import type { Player } from '@/types/players';
 import { useFirestore } from 'vuefire';
 import DateFormat from '@/components/ui/DateFormat.vue';
+import { isTemplateExpression } from 'typescript';
 
 const db = useFirestore();
 const { t } = useI18n();
@@ -137,7 +143,7 @@ const injectedData = inject(rootProvided);
 const players = injectedData?.players;
 
 interface IProps {
-  currentTeamId?: TeamId[];
+  currentTeamId?: TeamId;
   currentPlayers: TeamPlayer[];
 }
 const props = withDefaults(defineProps<IProps>(), {
@@ -146,12 +152,15 @@ const props = withDefaults(defineProps<IProps>(), {
 
 interface ImportedPlayer {
   identification: string;
-  fname: string;
-  lname: string;
+  fname1: string;
+  fname2: string;
+  lname1: string;
+  lname2: string;
   number: string;
   dob: Date;
 }
 interface ImportedStatus {
+  noId: boolean;
   updatePlayer: Player | undefined;
   updateTeamPlayer: TeamPlayer | undefined;
   duplicatedPlayer: boolean | undefined;
@@ -163,6 +172,7 @@ interface ComparedPlayer extends ImportedPlayer {
 
 const injectedAdminLeagueData = inject(adminLeagueProvided);
 const teams = injectedAdminLeagueData?.teams;
+const multi = injectedAdminLeagueData?.multi;
 
 const leaguePlayers = computed<PlayerId[]>(() =>
   Array.isArray(teams?.value)
@@ -207,9 +217,13 @@ const importedItems = computed<ImportedPlayer[]>(() => {
 const comparedItems = computed<ComparedPlayer[]>(() => {
   return Array.isArray(importedItems.value)
     ? importedItems.value.map((item: ImportedPlayer, idx: number) => {
-        const existingPlayer: Player | undefined = players?.value.find(
-          (i) => i.identification === item.identification,
-        );
+        const noId = !item.identification;
+        const existingPlayer: Player | undefined = !noId
+          ? players?.value.find(
+              (i) =>
+                i.identification.toLocaleLowerCase() === item.identification.toLocaleLowerCase(),
+            )
+          : undefined;
         const existingLeaguePlayer =
           Boolean(existingPlayer?.id) && leaguePlayers.value.includes(existingPlayer.id);
         const existingTeamPlayer = props.currentPlayers.find(
@@ -223,6 +237,7 @@ const comparedItems = computed<ComparedPlayer[]>(() => {
             (i, _idx: number) => i.number == item.number && idx > _idx,
           ) > -1;
         const compared: ImportedStatus = {
+          noId,
           updatePlayer: existingPlayer?.id ? existingPlayer : undefined,
           updateTeamPlayer:
             !duplicatedNumber && existingTeamPlayer?.playerId ? existingTeamPlayer : undefined,
@@ -246,7 +261,13 @@ const emit = defineEmits(['import']);
 const handleParsed = (data: ImportedPlayer[]) => {
   formData.data = data.map((row) => ({
     ...row,
-    dob: new Date(row.dob),
+    identification: row.identification ? row.identification.toString() : '',
+    fname1: row.fname1 || '',
+    fname2: row.fname2 || '',
+    lname1: row.lname1 || '',
+    lname2: row.lname2 || '',
+    dob: row.dob ? new Date(row.dob) : new Date(),
+    gender: multi?.value?.gender,
   }));
 };
 
@@ -259,28 +280,37 @@ const handleSubmit = async (ev: Event) => {
     ) as CollectionReference<Player>;
     const teamPlayers: TeamPlayer[] = [];
     const batch = writeBatch(db);
-    comparedItems.value.forEach(async (item: ComparedPlayer) => {
-      const { compared }: { compared: ImportedStatus } = item;
-      const { identification, fname, lname, dob, number } = item;
-      const player = { identification, fname, lname, dob } as Player;
-      const teamPlayer = {
-        number,
-        playerId: compared.updatePlayer?.id,
-      } as TeamPlayer;
-      // add / update player's data
-      if (compared.updatePlayer?.id) {
-        const docRef = doc(colRef, compared.updatePlayer?.id);
-        batch.set(docRef, player, { merge: true });
-      } else {
-        const _docRef = doc(colRef);
-        batch.set(_docRef, player, { merge: true });
-        teamPlayer.playerId = _docRef.id;
-      }
-      // add to team
-      if (!compared.duplicatedNumber && !compared.duplicatedPlayer) {
-        teamPlayers.push(teamPlayer);
-      }
-    });
+    comparedItems.value
+      .filter((item) => !item.compared.noId)
+      .forEach(async (item: ComparedPlayer) => {
+        const { compared }: { compared: ImportedStatus } = item;
+        const { identification, fname1, fname2, lname1, lname2, dob, number } = item;
+        const player = {
+          identification,
+          fname1,
+          fname2,
+          lname1,
+          lname2,
+          dob,
+        } as Player;
+        const teamPlayer = {
+          number,
+          playerId: compared.updatePlayer?.id,
+        } as TeamPlayer;
+        // add / update player's data
+        if (compared.updatePlayer?.id) {
+          const docRef = doc(colRef, compared.updatePlayer?.id);
+          batch.set(docRef, player, { merge: true });
+        } else {
+          const _docRef = doc(colRef);
+          batch.set(_docRef, player, { merge: true });
+          teamPlayer.playerId = _docRef.id;
+        }
+        // add to team
+        if (!compared.duplicatedNumber && !compared.duplicatedPlayer) {
+          teamPlayers.push(teamPlayer);
+        }
+      });
     await batch.commit();
     emit('import', teamPlayers);
   } catch (err) {

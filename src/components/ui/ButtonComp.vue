@@ -1,6 +1,6 @@
 <template>
   <button :type="type" :class="computedClass" :disabled="disabled || isBusy">
-    <template v-if="isBusy"><SpinnerComp variant="light" size="sm" /></template><slot>?</slot>
+    <template v-if="isBusy"><SpinnerComp variant="light" size="sm" /></template><slot></slot>
   </button>
 </template>
 

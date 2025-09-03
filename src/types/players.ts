@@ -5,9 +5,11 @@ export type PlayerId = string;
 // data
 export interface Player {
   id?: PlayerId;
-  fname: string;
-  lname: string;
+  fname1: string;
+  fname2?: string;
+  lname1: string;
+  lname2?: string;
   gender: Gender;
   identification: string;
-  dob: Date;
+  dob?: Date;
 }

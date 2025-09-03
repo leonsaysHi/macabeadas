@@ -19,6 +19,7 @@ import XlsxImport from './XlsxImport.vue';
 import ModalComp from '@/components/ui/ModalComp.vue';
 import AlertComp from '@/components/ui/AlertComp.vue';
 import type { LeagueId } from '@/types/leagues';
+import type { Player } from '@/types/players';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -65,7 +66,8 @@ const fields: TableField[] = [
   {
     key: 'player',
     label: t('globals.player'),
-    formatter: (value) => `${value.fname} ${value.lname}`,
+    formatter: (value: Player) =>
+      [value?.fname1, value?.fname2, value?.lname1, value?.lname2].filter(Boolean).join(' '),
     sortable: true,
     sortByFormatted: true,
   },
@@ -189,6 +191,7 @@ const handleSubmit = async (ev: Event) => {
 };
 </script>
 <template>
+  <h2>{{ $t('admin.teams.form.title') }}</h2>
   <form @submit="handleSubmit">
     <FieldComp :label="$t('globals.sponsor')">
       <div class="row row-cols-2 align-items-end">

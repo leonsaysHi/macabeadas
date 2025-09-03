@@ -1,3 +1,4 @@
+import type { Game } from '@/types/games';
 import type { Player } from '@/types/players';
 import { isDate, parseISO } from 'date-fns';
 import {
@@ -29,5 +30,22 @@ export const playerConverter = {
       id: snapshot.id,
       dob: data.dob?.toDate(),
     } as Player;
+  },
+};
+
+export const gameConverter = {
+  toFirestore: (row: Game): DocumentData => {
+    return {
+      ...row,
+      datetime: row.datetime ? dateToFireStore(row.datetime) : undefined,
+    };
+  },
+  fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): Game => {
+    const data = snapshot.data(options)!;
+    return {
+      ...data,
+      id: snapshot.id,
+      datetime: data.datetime?.toDate(),
+    } as Game;
   },
 };
