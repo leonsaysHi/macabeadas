@@ -1,8 +1,10 @@
 import type { CourtId } from './facilities';
 import type { FaseId } from './fases';
+import type { PlayerId, PlayerStatLine } from './players';
 import type { TeamId } from './teams';
 export type GameId = string;
 export type GameStatus = '' | 'live' | 'finished';
+export type GameBoxScore = { [key: PlayerId]: PlayerStatLine };
 // data
 export interface Game {
   id?: GameId;
@@ -14,4 +16,5 @@ export interface Game {
   scores1: number[];
   scores2: number[];
   courtId: CourtId;
+  boxscore: GameBoxScore;
 }

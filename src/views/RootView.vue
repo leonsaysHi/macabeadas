@@ -25,28 +25,60 @@ const playersColRef = collection(db, 'players').withConverter(playerConverter);
 const facilitiesColRef = collection(db, 'facilities');
 const courtsColRef = collection(db, 'courts');
 
-const { data: settingsList, pending: isSetsPending } = useCollection<Settings>(settingsColRef, {
+const {
+  data: settingsList,
+  pending: isSetsPending,
+  error: settingsError,
+} = useCollection<Settings>(settingsColRef, {
   once: true,
 });
-const { data: categories, pending: isCatsPending } = useCollection<Categorie>(categoriesColRef, {
+const {
+  data: categories,
+  pending: isCatsPending,
+  error: categoriesError,
+} = useCollection<Categorie>(categoriesColRef, {
   once: true,
 });
-const { data: multies, pending: isMulsPending } = useCollection<Multi>(multiesColRef, {
+const {
+  data: multies,
+  pending: isMulsPending,
+  error: multiesError,
+} = useCollection<Multi>(multiesColRef, {
   once: true,
 });
-const { data: leagues, pending: isLeasPending } = useCollection<League>(leaguesColRef, {
+const {
+  data: leagues,
+  pending: isLeasPending,
+  error: leaguesError,
+} = useCollection<League>(leaguesColRef, {
   once: true,
 });
-const { data: sponsors, pending: isSposPending } = useCollection<Sponsor>(sponsorsColRef, {
+const {
+  data: sponsors,
+  pending: isSposPending,
+  error: sponsorsError,
+} = useCollection<Sponsor>(sponsorsColRef, {
   once: true,
 });
-const { data: players, pending: isPlasPending } = useCollection<Player>(playersColRef, {
+const {
+  data: players,
+  pending: isPlasPending,
+  error: playersError,
+} = useCollection<Player>(playersColRef, {
   once: true,
 });
-const { data: facilities, pending: isFacsPending } = useCollection<Facilitie>(facilitiesColRef, {
+const {
+  data: facilities,
+  pending: isFacsPending,
+  error: facilitiesError,
+} = useCollection<Facilitie>(facilitiesColRef, {
   once: true,
 });
-const { data: courts, pending: isCousPending } = useCollection<Court>(courtsColRef, {
+const {
+  data: courts,
+  pending: isCousPending,
+  error: courtsError,
+} = useCollection<Court>(courtsColRef, {
   once: true,
 });
 
@@ -71,7 +103,9 @@ provide(rootProvided, {
     <div class="container-fluid">
       <RouterLink class="navbar-brand d-flex align-items-center gap-2" :to="{ name: 'home' }">
         <img alt="Vue logo" class="logo" src="@/assets/logo.png" width="50" height="70" />
-        <span :style="`color: ${settings.color || ''};`">{{ settings?.title || '#f00' }}</span>
+        <span :style="`color: ${settings?.color || ''};`">{{
+          settings?.title || 'Macabeadas'
+        }}</span>
       </RouterLink>
     </div>
   </nav>
@@ -92,6 +126,20 @@ provide(rootProvided, {
         <SpinnerComp />
       </div>
     </template>
+    <template
+      v-else-if="
+        settingsError ||
+        categoriesError ||
+        multiesError ||
+        leaguesError ||
+        sponsorsError ||
+        playersError ||
+        facilitiesError ||
+        courtsError
+      "
+    >
+      Error</template
+    >
     <template v-else>
       <RouterView />
     </template>

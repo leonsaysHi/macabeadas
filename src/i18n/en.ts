@@ -45,6 +45,7 @@ const en = {
       kickball: 'Kickball',
       volleyball: 'Volleyball',
     },
+    stats: 'Stat|Stats',
     status: 'Status|Statuses',
     statuses: {
       none: 'None',
@@ -69,6 +70,9 @@ const en = {
     remove: 'Remove',
     signout: 'Sign out',
     update: 'Update',
+  },
+  statistics: {
+    dnp: 'DNP',
   },
   admin: {
     'add-edit': 'Add/Edit',

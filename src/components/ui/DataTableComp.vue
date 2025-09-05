@@ -156,11 +156,10 @@ const computedItems = computed(() => {
         ? props.limit
         : results.length;
   // result
+  const itemsKeys = Object.keys(results[0] || {});
   const computedKeys = [
-    ...Object.keys(results[0] || {}),
-    ...props.fields
-      .filter((field) => field.formatter && !Object.keys(results[0] || {}).includes(field.key))
-      .map((f) => f.key),
+    ...itemsKeys,
+    ...props.fields.filter((field) => !itemsKeys.includes(field.key)).map((f) => f.key),
   ];
   return results.slice(sliceFirstIdx, sliceEnd).map((row: TableItem, idx: number) => {
     return computedKeys.reduce((item: TableItem, key: string) => {

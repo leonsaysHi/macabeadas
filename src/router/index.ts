@@ -23,7 +23,10 @@ const router = createRouter({
           name: 'login',
           component: LoginView,
         },
-        ...AdminChildren,
+        ...AdminChildren.map((route) => ({
+          ...route,
+          meta: { requiresAuth: false },
+        })),
       ],
     },
   ],

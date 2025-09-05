@@ -39,14 +39,46 @@ const sponsorsColRef = collection(db, 'sponsors');
 const playersColRef = collection(db, 'players').withConverter(playerConverter);
 const facilitiesColRef = collection(db, 'facilities');
 const courtsColRef = collection(db, 'courts');
-const { data: settingsList, pending: isSetsPending } = useCollection<Settings>(settingsColRef);
-const { data: categories, pending: isCatsPending } = useCollection<Categorie>(categoriesColRef);
-const { data: multies, pending: isMulsPending } = useCollection<Multi>(multiesColRef);
-const { data: leagues, pending: isLeasPending } = useCollection<League>(leaguesColRef);
-const { data: sponsors, pending: isSposPending } = useCollection<Sponsor>(sponsorsColRef);
-const { data: players, pending: isPlasPending } = useCollection<Player>(playersColRef);
-const { data: facilities, pending: isFacsPending } = useCollection<Facilitie>(facilitiesColRef);
-const { data: courts, pending: isCousPending } = useCollection<Court>(courtsColRef);
+const {
+  data: settingsList,
+  pending: isSetsPending,
+  error: settingsError,
+} = useCollection<Settings>(settingsColRef);
+const {
+  data: categories,
+  pending: isCatsPending,
+  error: categoriesError,
+} = useCollection<Categorie>(categoriesColRef);
+const {
+  data: multies,
+  pending: isMulsPending,
+  error: multiesError,
+} = useCollection<Multi>(multiesColRef);
+const {
+  data: leagues,
+  pending: isLeasPending,
+  error: leaguesError,
+} = useCollection<League>(leaguesColRef);
+const {
+  data: sponsors,
+  pending: isSposPending,
+  error: sponsorsError,
+} = useCollection<Sponsor>(sponsorsColRef);
+const {
+  data: players,
+  pending: isPlasPending,
+  error: playersError,
+} = useCollection<Player>(playersColRef);
+const {
+  data: facilities,
+  pending: isFacsPending,
+  error: facilitiesError,
+} = useCollection<Facilitie>(facilitiesColRef);
+const {
+  data: courts,
+  pending: isCousPending,
+  error: courtsError,
+} = useCollection<Court>(courtsColRef);
 const settings = computed(() => (Array.isArray(settingsList) ? settingsList[0] : {}));
 
 provide(rootProvided, {
@@ -108,6 +140,21 @@ onAuthStateChanged(auth, (user) => {
           <SpinnerComp />
         </div>
       </template>
+      <template
+        v-else-if="
+          settingsError ||
+          categoriesError ||
+          multiesError ||
+          leaguesError ||
+          sponsorsError ||
+          playersError ||
+          facilitiesError ||
+          courtsError
+        "
+      >
+        {{ settingsError }}{{ categoriesError }}{{ multiesError }}{{ leaguesError
+        }}{{ sponsorsError }}{{ playersError }}{{ facilitiesError }}{{ courtsError }}</template
+      >
       <template v-else>
         <RouterView />
       </template>

@@ -13,3 +13,8 @@ export interface Player {
   identification: string;
   dob?: Date;
 }
+
+export interface PlayerStatLine {
+  dnp: number;
+}
+export type PlayerStatLineKey = keyof PlayerStatLine;

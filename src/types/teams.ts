@@ -1,5 +1,6 @@
+import type { PlayerId } from './players';
+
 export type TeamId = string;
-export type PlayerId = string;
 
 export interface TeamPlayer {
   playerId: PlayerId;
