@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import CheckComp from '@/components/form/CheckComp.vue';
 import DataTableComp from '@/components/ui/DataTableComp.vue';
-import useLeague from '@/composables/useLeague';
+import useLeagueAdmin from '@/composables/useLeagueAdmin';
 import type { GameBoxScore } from '@/types/games';
 import type { PlayerId, PlayerStatLine } from '@/types/players';
 import type { TeamPlayer } from '@/types/teams';
@@ -17,7 +17,7 @@ const props = withDefaults(defineProps<IProps>(), {
   disabled: false,
 });
 
-const { getPlayer } = useLeague();
+const { getPlayer } = useLeagueAdmin();
 const { t } = useI18n();
 
 const fields = computed(() => {

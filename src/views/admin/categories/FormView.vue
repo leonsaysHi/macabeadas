@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import { useFirestore } from 'vuefire';
-import { addDoc, collection, deleteDoc, doc, setDoc } from 'firebase/firestore';
+import { addDoc, deleteDoc, doc, setDoc } from 'firebase/firestore';
 import { computed, inject, onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import type { Categorie } from '@/types/categories';
@@ -11,12 +10,11 @@ import InputComp from '@/components/form/InputComp.vue';
 import SelectComp from '@/components/form/SelectComp.vue';
 import ButtonComp from '@/components/ui/ButtonComp.vue';
 import ConfirmComp from '@/components/ui/ConfirmComp.vue';
+import useFirestoreRefs from '@/composables/useFirestoreRefs';
 
 const route = useRoute();
 const router = useRouter();
-const db = useFirestore();
-const catColRef = collection(db, 'categories');
-const mulColRef = collection(db, 'multies');
+const { categoriesColRef: catColRef, multiesColRef: mulColRef } = useFirestoreRefs();
 
 const injectedData = inject(rootProvided);
 const categories = injectedData?.categories;

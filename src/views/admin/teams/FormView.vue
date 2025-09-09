@@ -3,10 +3,10 @@ import { useRoute, useRouter } from 'vue-router';
 import { addDoc, collection, doc, setDoc } from 'firebase/firestore';
 import { useDocument, useFirestore } from 'vuefire';
 import { computed, inject, reactive, ref, watch } from 'vue';
-import type { PlayerId, Team, TeamId, TeamPlayer } from '@/types/teams';
+import type { Team, TeamId, TeamPlayer } from '@/types/teams';
 import type { Option } from '@/types/comp-fields';
 import type { TableField } from '@/types/comp-datatable';
-import { adminLeagueProvided, rootProvided } from '@/types/injections';
+import { leagueProvided, rootProvided } from '@/types/injections';
 import FieldComp from '@/components/form/FieldComp.vue';
 import SelectComp from '@/components/form/SelectComp.vue';
 import ButtonComp from '@/components/ui/ButtonComp.vue';
@@ -20,6 +20,7 @@ import ModalComp from '@/components/ui/ModalComp.vue';
 import AlertComp from '@/components/ui/AlertComp.vue';
 import type { LeagueId } from '@/types/leagues';
 import type { Player } from '@/types/players';
+import useLeagueAdmin from '@/composables/useLeagueAdmin';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -29,12 +30,10 @@ const db = useFirestore();
 const leagueId = route.params.leagueId as LeagueId;
 const teamId = route.params.teamId as TeamId;
 
-const injectedData = inject(rootProvided);
-const sponsors = injectedData?.sponsors;
-const players = injectedData?.players;
-
-const injectedAdminLeagueData = inject(adminLeagueProvided);
-const teams = injectedAdminLeagueData?.teams;
+const injectedRootData = inject(rootProvided);
+const players = injectedRootData?.players;
+const sponsors = injectedRootData?.sponsors;
+const { teams } = useLeagueAdmin();
 
 const isBusy = ref<boolean>(false);
 const sponsorsOptions = computed<Option[]>(() => {

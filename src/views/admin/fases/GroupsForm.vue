@@ -49,47 +49,35 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, watch } from 'vue';
+import { computed } from 'vue';
 import type { Option } from '@/types/comp-fields';
 import type { FaseGroup } from '@/types/fases';
 import type { Team, TeamId } from '@/types/teams';
-import { adminLeagueProvided } from '@/types/injections';
 import SelectComp from '@/components/form/SelectComp.vue';
 
 import ButtonComp from '@/components/ui/ButtonComp.vue';
 import FieldComp from '@/components/form/FieldComp.vue';
 import InputComp from '@/components/form/InputComp.vue';
-import useLeague from '@/composables/useLeague';
+import useLeagueAdmin from '@/composables/useLeagueAdmin';
 interface IProps {
   modelValue: FaseGroup[];
 }
 const props = withDefaults(defineProps<IProps>(), {});
 
-const injectedAdminLeagueData = inject(adminLeagueProvided);
-const teams = injectedAdminLeagueData?.teams;
-
-const { getTeamTitle, getSponsor } = useLeague();
+const { teams, getTeamTitle, getSponsor } = useLeagueAdmin();
 
 const emit = defineEmits(['update:modelValue']);
 
 const model = computed({
-  get: (): FaseGroup[] => props.modelValue,
-  set: (val: FaseGroup[]) => emit('update:modelValue', val),
-});
-
-watch(
-  model,
-  (val) => {
+  get: (): FaseGroup[] => (Array.isArray(props.modelValue) ? props.modelValue : []),
+  set: (val: FaseGroup[]) => {
     if (!Array.isArray(val) || val.length === 0) {
-      model.value = [{ title: 'Group 1', teams: [] }];
+      emit('update:modelValue', [{ title: 'Group 1', teams: [] }]);
     } else {
-      model.value = model.value
-        .slice()
-        .map((item) => ({ ...item, teams: item.teams.filter(Boolean) }));
+      emit('update:modelValue', val);
     }
   },
-  { immediate: true, deep: true },
-);
+});
 
 const options = computed<Option[]>(() => {
   return Array.isArray(teams?.value)

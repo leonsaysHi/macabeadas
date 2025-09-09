@@ -1,63 +1,161 @@
-import type { Court, CourtDetails, CourtId, Facilitie, FacilitieId } from '@/types/facilities';
-import type { Game } from '@/types/games';
-import { adminLeagueProvided, rootProvided } from '@/types/injections';
-import type { Player, PlayerId } from '@/types/players';
+import { computed, inject } from 'vue';
+import { useRoute } from 'vue-router';
+import { leagueProvided, rootProvided } from '@/types/injections';
 import type { Sponsor, SponsorId } from '@/types/sponsors';
-import type { Team, TeamId } from '@/types/teams';
-import { inject, type Ref } from 'vue';
+import type { PlayerId } from '@/types/players';
+import type { League } from '@/types/leagues';
+import type { Multi } from '@/types/multies';
+import type { Categorie } from '@/types/categories';
+import type { TeamId } from '@/types/teams';
+import type {
+  ComputedTeamStats,
+  LeagueComputedFase,
+  LeagueComputedGroup,
+  LeagueComputedPlayer,
+  LeagueComputedTeam,
+} from '@/types/leaguesComputed';
+import type { FaseId } from '@/types/fases';
+import type { Rank } from '@/components/stats/RankComp.vue';
 
-export default function useCurrentLeague() {
+export default function useLeagueComputed() {
+  const route = useRoute();
+  const leagueId = route.params.leagueId as string;
+
+  if (!leagueId) {
+    console.warn('Should be called within a league. !!');
+  }
+
   const injectedRootData = inject(rootProvided);
-  const { sponsors, facilities, courts, players } = injectedRootData as {
-    sponsors: Ref<Sponsor[]>;
-    facilities: Ref<Facilitie[]>;
-    courts: Ref<Court[]>;
-    players: Ref<Player[]>;
-  };
-  const injectedAdminLeagueData = inject(adminLeagueProvided);
-  const { teams, games } = injectedAdminLeagueData as { teams: Ref<Team[]>; games: Ref<Game[]> };
+  const categories = injectedRootData?.categories;
+  const multies = injectedRootData?.multies;
+  const leagues = injectedRootData?.leagues;
+  const players = injectedRootData?.players;
+  const sponsors = injectedRootData?.sponsors;
 
-  const getSponsor = (id: SponsorId | undefined): Sponsor | undefined => {
-    return id && Array.isArray(injectedRootData?.sponsors.value)
-      ? sponsors.value.find((item) => item.id === id)
-      : undefined;
+  const league = computed(() => leagues?.value.find((item) => item.id === leagueId) as League);
+  const multi = computed(
+    () => multies?.value.find((item) => item.id === league.value?.multiId) as Multi,
+  );
+  const categorie = computed(
+    () => categories?.value.find((item) => item.id === league.value?.multiId) as Categorie,
+  );
+
+  const injectedLeagueData = inject(leagueProvided);
+  const games = injectedLeagueData?.games;
+  const leagueComputed = injectedLeagueData?.leagueComputed;
+
+  const teams = computed<LeagueComputedTeam[]>(() =>
+    Array.isArray(leagueComputed?.value?.fases)
+      ? leagueComputed.value.fases.reduce((acc: LeagueComputedTeam[], fase: LeagueComputedFase) => {
+          acc.push(
+            ...(Array.isArray(fase.groups)
+              ? fase.groups.reduce((_acc: LeagueComputedTeam[], group: LeagueComputedGroup) => {
+                  _acc.push(
+                    ...(Array.isArray(group?.teams)
+                      ? group.teams
+                          .filter(
+                            ({ teamId }) => acc.findIndex((item) => item.teamId === teamId) === -1,
+                          )
+                          .map(({ teamId, sponsorId }) => ({ teamId, sponsorId }))
+                      : []),
+                  );
+                  return _acc;
+                }, [])
+              : []),
+          );
+          return acc;
+        }, [])
+      : [],
+  );
+  const fases = computed<LeagueComputedFase[]>(() =>
+    Array.isArray(leagueComputed?.value?.fases)
+      ? leagueComputed.value.fases.reduce((acc: LeagueComputedFase[], fase: LeagueComputedFase) => {
+          acc.push(fase);
+          return acc;
+        }, [])
+      : [],
+  );
+  const playersComputed = computed(() => [] as LeagueComputedPlayer[]);
+
+  const getPlayer = (id: PlayerId) => players?.value.find((item) => item.id === id);
+  const getPlayerStats = (id: TeamId) =>
+    playersComputed?.value.find((item) => item.playerId === id);
+
+  const getTeam = (id: TeamId) => teams?.value.find((item) => item.teamId === id);
+
+  const getRank = (faseId: FaseId | '' = '', groupIdx: number = -1): Rank[] => {
+    return Array.isArray(leagueComputed?.value?.fases)
+      ? leagueComputed?.value?.fases.reduce((acc: Rank[], fase: LeagueComputedFase) => {
+          if (faseId === '' || fase.faseId === faseId) {
+            const groups = groupIdx > 0 ? fase.groups.slice(groupIdx, 1) : fase.groups.slice();
+            groups.forEach((group: LeagueComputedGroup) => {
+              group.teams.forEach((team: LeagueComputedTeam) => {
+                const tIdx = acc.findIndex((item) => item.teamId === team.teamId);
+                // merging stats here
+                if (acc[tIdx]?.stats) {
+                  acc[tIdx].stats.push(team.stats);
+                } else {
+                  acc.push({
+                    ...team,
+                    stats: [team.stats],
+                  } as Rank);
+                }
+              });
+            });
+          }
+          return acc;
+        }, [])
+      : [];
   };
-  const getTeam = (id: TeamId | undefined): Team | undefined => {
-    return id && Array.isArray(injectedAdminLeagueData?.teams.value)
-      ? teams.value.find((item) => item.id === id)
-      : undefined;
-  };
-  const getTeamTitle = (id: TeamId): string | undefined => {
-    const sponsor = getSponsor(getTeam(id)?.sponsorId);
-    return sponsor?.title;
-  };
-  const getTeamColor = (id: TeamId): string | number | undefined => {
-    const sponsor = getSponsor(getTeam(id)?.sponsorId);
-    return sponsor?.color;
-  };
-  const getCourtDetails = (id: CourtId): CourtDetails | undefined => {
-    const court =
-      id && Array.isArray(courts.value) ? courts.value.find((item) => item.id === id) : undefined;
-    const facilitie =
-      court?.facilitieId && Array.isArray(facilities.value)
-        ? facilities.value.find((item) => item.id === court?.facilitieId)
-        : undefined;
+  const getTeamStats = (id: TeamId, faseId: FaseId | '') => {
+    const team = getTeam(id);
+    const stats: ComputedTeamStats[] = Array.isArray(leagueComputed?.value?.fases)
+      ? leagueComputed?.value?.fases.reduce(
+          (acc: ComputedTeamStats[], fase: LeagueComputedFase) => {
+            if (faseId === '' || fase.faseId === faseId) {
+              acc.push(
+                ...fase.groups.reduce((_acc: ComputedTeamStats[], group: LeagueComputedGroup) => {
+                  _acc.push(
+                    ...group.teams
+                      .filter((item) => item.teamId === id)
+                      .map((item) => item.stats as ComputedTeamStats),
+                  );
+                  return _acc;
+                }, []),
+              );
+            }
+            return acc;
+          },
+          [],
+        )
+      : [];
     return {
-      ...facilitie,
-      courtTitle: court?.title as string,
-    } as CourtDetails;
+      ...team,
+      stats,
+    };
   };
 
-  const getPlayer = (id: PlayerId): Player => {
-    return players.value.find((item) => item.id === id) as Player;
-  };
+  const getSponsor = (id: SponsorId) => sponsors?.value.find((item) => item.id === id);
+  const getTeamSponsor = (id: TeamId) =>
+    getSponsor((getTeam(id) as LeagueComputedTeam).sponsorId) as Sponsor;
 
   return {
-    getSponsor,
-    getTeam,
-    getCourtDetails,
-    getTeamTitle,
-    getTeamColor,
+    categorie,
+    multi,
+    league,
+    leagueId,
+
+    leagueComputed,
+    teams,
+    fases,
+    playersComputed,
+    games,
+
+    getRank,
     getPlayer,
+    getSponsor,
+    getTeamSponsor,
+    getTeamStats,
+    getPlayerStats,
   };
 }

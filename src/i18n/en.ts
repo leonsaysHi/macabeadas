@@ -16,6 +16,7 @@ const en = {
       playoffs: 'Play-offs',
     },
     fname: 'First name',
+    game: 'Game|Games',
     gender: 'Gender|Genders',
     genders: {
       f: 'Feminino|Femininos',
@@ -32,6 +33,7 @@ const en = {
     noData: 'No data',
     number: 'Number|Numbers',
     player: 'Player|Players',
+    rank: 'Rank',
     role: 'Role|Roles',
     score: 'Score|Scores',
     shortTitle: 'Short title',
@@ -73,6 +75,9 @@ const en = {
   },
   statistics: {
     dnp: 'DNP',
+    pos: 'Pos',
+    gp: 'GP',
+    w: 'W',
   },
   admin: {
     'add-edit': 'Add/Edit',

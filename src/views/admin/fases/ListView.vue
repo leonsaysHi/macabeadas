@@ -1,17 +1,31 @@
 <script lang="ts" setup>
-import type { TableField, TableItem } from '@/types/comp-datatable';
-import { adminLeagueProvided } from '@/types/injections';
-import { inject } from 'vue';
+import type { TableField } from '@/types/comp-datatable';
 import { useI18n } from 'vue-i18n';
 import DataTable from '@/components/ui/DataTableComp.vue';
-import ConfirmComp from '@/components/ui/ConfirmComp.vue';
+import useLeagueAdmin from '@/composables/useLeagueAdmin';
+import { computed } from 'vue';
+import type { FaseId } from '@/types/fases';
 
 const { t } = useI18n();
+const { league, fases } = useLeagueAdmin();
 
-const injectedAdminLeagueData = inject(adminLeagueProvided);
-const items = injectedAdminLeagueData?.fases ?? [];
+const orderedFases = computed(() => {
+  console.log(
+    league.value?.fases,
+    fases.value.map((i) => i.id),
+  );
+  return league.value?.fases
+    .map((faseId: FaseId) => {
+      return fases.value.find((item) => item.id === faseId) || undefined;
+    })
+    .filter(Boolean);
+});
 
 const fields: TableField[] = [
+  {
+    key: 'idx',
+    label: t('globals.order'),
+  },
   {
     key: 'title',
     label: t('globals.title'),
@@ -22,7 +36,6 @@ const fields: TableField[] = [
   },
   { key: 'actions', label: '' },
 ];
-const handleRemove = () => {};
 </script>
 
 <template>
@@ -33,7 +46,8 @@ const handleRemove = () => {};
         $t('actions.add')
       }}</RouterLink>
     </div>
-    <DataTable :fields="fields" :items="items" sortedKey="title">
+    <DataTable :fields="fields" :items="orderedFases" sortedKey="idx">
+      <template #row.idx="{ index }">{{ index + 1 }}</template>
       <template #row.type="{ value }">{{ $t(`globals.faseTypes.${value}`) }}</template>
       <template #row.actions="{ item }"
         ><div class="hstack justify-content-end gap-1">
@@ -41,11 +55,6 @@ const handleRemove = () => {};
             class="btn btn-sm btn-light"
             :to="{ name: 'admin-league-fase-edit', params: { faseId: item.docId as string } }"
             >{{ $t('actions.edit') }}</RouterLink
-          ><ConfirmComp
-            variant="danger"
-            size="sm"
-            @confirm="() => handleRemove(item.docId as string)"
-            >{{ $t('actions.remove') }}</ConfirmComp
           >
         </div></template
       >

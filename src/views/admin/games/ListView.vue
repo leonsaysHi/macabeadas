@@ -2,27 +2,23 @@
 import DataTable from '@/components/ui/DataTableComp.vue';
 import DateTimeFormat from '@/components/ui/DateTimeFormat.vue';
 import DateFormat from '@/components/ui/DateFormat.vue';
-import useLeague from '@/composables/useLeague';
+import useLeagueAdmin from '@/composables/useLeagueAdmin';
 
 import type { TableField } from '@/types/comp-datatable';
 import type { Game } from '@/types/games';
-import { adminLeagueProvided } from '@/types/injections';
-import { computed, inject, reactive, ref, watch } from 'vue';
+import { computed, reactive, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import SelectComp from '@/components/form/SelectComp.vue';
 import type { Fase, FaseId } from '@/types/fases';
 import type { Option } from '@/types/comp-fields';
 import FieldComp from '@/components/form/FieldComp.vue';
+import type { CourtId } from '@/types/facilities';
 
 interface Filters {
   faseId: FaseId | undefined;
 }
 const { t } = useI18n();
-const injectedAdminLeagueData = inject(adminLeagueProvided);
-const items = injectedAdminLeagueData?.games ?? ref<Game[]>([]);
-const fases = injectedAdminLeagueData?.fases ?? ref<Fase[]>([]);
-
-const { getTeamTitle, getCourtDetails } = useLeague();
+const { games, fases, getTeamTitle, getCourtDetails } = useLeagueAdmin();
 
 const getTotalScores = (arr: number[]) => {
   return arr.reduce((tot, n) => tot + n, 0);
@@ -51,7 +47,7 @@ const fields: TableField[] = [
   {
     key: 'courtId',
     label: t('globals.court'),
-    formatter: (value: courtId) => {
+    formatter: (value: CourtId) => {
       return getCourtDetails(value);
     },
   },
@@ -74,7 +70,7 @@ const filters = reactive<Filters>({
 });
 
 const filteredItems = computed<Game[]>(() =>
-  items.value.filter((item) => !filters.faseId || item.faseId === filters.faseId),
+  games.value.filter((item) => !filters.faseId || item.faseId === filters.faseId),
 );
 
 const fasesOptions = computed<Option[]>(() =>
@@ -127,7 +123,7 @@ watch(
         <strong><DateFormat :value="value" time-style="short" /></strong><br />
         <DateTimeFormat :value="value" time-only time-style="short" />
       </template>
-      <template #row.faseId="{ value }">{{ value + 1 }}.{{ fases[value].title }} </template>
+      <template #row.faseId="{ value }">{{ value + 1 }}.{{ fases[value]?.title }} </template>
       <template #row.courtId="{ value }"
         ><strong>{{ value.title }}</strong
         ><br />{{ value.courtTitle }}</template

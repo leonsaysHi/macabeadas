@@ -8,36 +8,29 @@ import ConfirmComp from '@/components/ui/ConfirmComp.vue';
 import type { Game, GameId, GameStatus } from '@/types/games';
 import DateInputComp from '@/components/form/DateInputComp.vue';
 import SelectComp from '@/components/form/SelectComp.vue';
-import { adminLeagueProvided, rootProvided } from '@/types/injections';
+import { rootProvided } from '@/types/injections';
 import type { Option } from '@/types/comp-fields';
 import type { Fase } from '@/types/fases';
 import type { TeamId, TeamPlayer } from '@/types/teams';
-import useLeague from '@/composables/useLeague';
+import useLeagueAdmin from '@/composables/useLeagueAdmin';
 import { useI18n } from 'vue-i18n';
 import ScoresInput from './ScoresInput.vue';
 import type { Court, Facilitie, FacilitieId } from '@/types/facilities';
 import BoxscoreSheets from './BoxscoreSheets.vue';
 import useGame from '@/composables/useGame';
-import useComputedLeague from '@/composables/useComputedLeague';
 
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 
-const { computedTeams, computedPlayers } = useComputedLeague();
-
-const { getTeamTitle, getCourtDetails, getTeam } = useLeague();
-const { colRef, docRef } = useGame();
-
+const emit = defineEmits(['updated']);
 const injectedRootData = inject(rootProvided);
 const { facilities, courts } = injectedRootData as {
   facilities: Ref<Facilitie[]>;
   courts: Ref<Court[]>;
 };
-
-const injectedAdminLeagueData = inject(adminLeagueProvided);
-const fases = injectedAdminLeagueData?.fases ?? ref<Fase[]>([]);
-const games = injectedAdminLeagueData?.games ?? ref<Game[]>([]);
+const { fases, games, getTeamTitle, getCourtDetails, getTeam } = useLeagueAdmin();
+const { colRef, docRef } = useGame();
 
 const isBusy = ref<boolean>(false);
 const gameId: string = route.params.gameId as GameId;
@@ -200,8 +193,8 @@ const handleSave = async (ev: Event) => {
     } else {
       await addDoc(colRef, formData);
     }
-    console.log(computedTeams(), computedPlayers());
-    // router.push({ name: 'admin-league-games' });
+    emit('updated');
+    router.push({ name: 'admin-league-games' });
   } catch (err) {
     console.warn('Error saving document:', err);
     isBusy.value = false;

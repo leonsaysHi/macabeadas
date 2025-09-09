@@ -1,24 +1,53 @@
+import type { FaseId } from './fases';
 import type { LeagueId, Sport } from './leagues';
-import type { TeamId, TeamPlayer } from './teams';
+import type { SponsorId } from './sponsors';
+import type { Last5, TeamId, TeamPlayer } from './teams';
 
-export interface LeagueComputedTeamStats {
+// Computed League
+export interface LeagueComputed {
+  leagueId: LeagueId;
+  fases: LeagueComputedFase[];
+}
+// ...Fase / Group
+export interface LeagueComputedFase {
+  faseId: FaseId;
+  title: string;
+  groups: LeagueComputedGroup[];
+}
+export interface LeagueComputedGroup {
+  title: string;
+  teams: LeagueComputedTeam[];
+  players: LeagueComputedPlayer[];
+}
+// ...Team
+export interface LeagueComputedTeam {
+  teamId: TeamId;
+  sponsorId: SponsorId;
+  stats: ComputedTeamStats;
+}
+export interface ComputedTeamStats {
   sport: Sport;
   pos: number;
   w: number;
   gp: number;
+  last5: Last5;
 }
-export interface LeagueComputedTeam {
+// ...Player
+export interface LeagueComputedPlayer extends TeamPlayer {
   teamId: TeamId;
-  leagueId: LeagueId;
-  stats: LeagueComputedTeamStats;
+  sponsorId: SponsorId;
+  stats: ComputedPlayerStats;
 }
-
-export interface LeagueComputedPlayerStats {
+export interface ComputedPlayerStats {
   sport: Sport;
   gp: number;
 }
-export interface LeagueComputedPlayer extends TeamPlayer {
-  teamId: TeamId;
+
+// Computed Team
+export interface TeamComputed extends LeagueComputedTeam {
   leagueId: LeagueId;
-  stats: LeagueComputedPlayerStats;
+}
+// Computed Player
+export interface PlayerComputed extends LeagueComputedPlayer {
+  leagueId: LeagueId;
 }

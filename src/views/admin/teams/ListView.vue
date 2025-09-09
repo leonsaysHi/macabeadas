@@ -2,20 +2,15 @@
 import { useI18n } from 'vue-i18n';
 import DataTable from '@/components/ui/DataTableComp.vue';
 import ConfirmComp from '@/components/ui/ConfirmComp.vue';
-import { inject } from 'vue';
-import { adminLeagueProvided } from '@/types/injections';
 import type { TableField } from '@/types/comp-datatable';
 import ImageComp from '@/components/form/ImageComp.vue';
 import type { SponsorId } from '@/types/sponsors';
-import useLeague from '@/composables/useLeague';
+import useLeagueAdmin from '@/composables/useLeagueAdmin';
 import type { Team } from '@/types/teams';
 
 const { t } = useI18n();
 
-const injectedAdminLeagueData = inject(adminLeagueProvided);
-const teams = injectedAdminLeagueData?.teams;
-
-const { getSponsor } = useLeague();
+const { teams, getSponsor } = useLeagueAdmin();
 
 const fields: TableField[] = [
   {

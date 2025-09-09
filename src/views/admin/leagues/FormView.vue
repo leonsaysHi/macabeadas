@@ -1,20 +1,22 @@
 <script lang="ts" setup>
-import { useDocument, useFirestore } from 'vuefire';
-import { addDoc, collection, doc, setDoc } from 'firebase/firestore';
+import { useDocument } from 'vuefire';
+import { setDoc } from 'firebase/firestore';
 import FieldComp from '@/components/form/FieldComp.vue';
 import SelectComp from '@/components/form/SelectComp.vue';
 import { defineProps, computed, inject, reactive, ref, watch } from 'vue';
 import ButtonComp from '@/components/ui/ButtonComp.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import type { League, Sport } from '@/types/leagues';
+import type { League, LeagueId, Sport } from '@/types/leagues';
 import { rootProvided } from '@/types/injections';
 import type { Categorie } from '@/types/categories';
+import useFirestoreRefs from '@/composables/useFirestoreRefs';
 
 const { t } = useI18n();
-const route = useRoute();
 const router = useRouter();
-const db = useFirestore();
+const route = useRoute();
+
+const leagueId = route.params.leagueId as LeagueId
 
 const props = defineProps({
   multiId: String,
@@ -23,8 +25,6 @@ const props = defineProps({
 const injectedData = inject(rootProvided);
 const categories = injectedData?.categories;
 const multies = injectedData?.multies;
-
-const leagueId = route.params.leagueId as string;
 
 const multiOptions = computed(() => {
   const results = Array.isArray(multies?.value)
@@ -39,8 +39,8 @@ const multiOptions = computed(() => {
   return results;
 });
 
-const SPORTS: Sport[] = ['soccer', 'basketball', 'flag', 'baseball', 'kickball', 'volleyball'];
-const sportOptions = SPORTS.map((value) => ({
+const sports: Sport[] = ['soccer', 'basketball', 'flag', 'baseball', 'kickball', 'volleyball'];
+const sportOptions = sports.map((value) => ({
   value,
   text: t(`globals.sports.${value}`),
 }));
@@ -48,29 +48,26 @@ const sportOptions = SPORTS.map((value) => ({
 const isBusy = ref<boolean>(false);
 const formData = reactive<League>({
   multiId: props.multiId || '',
-  sport: SPORTS[0],
+  sport: sports[0],
+  fases: [],
 });
-const colRef = collection(db, 'leagues');
-const docRef = leagueId ? doc(colRef, leagueId) : undefined;
-const item = docRef
-  ? useDocument(docRef, {
+const { leagueRef } as Doc = useFirestoreRefs();
+const item = leagueRef
+  ? useDocument(leagueRef, {
       once: true,
     })
   : ref();
 watch(item, (val) => {
   formData.multiId = val?.multiId;
   formData.sport = val?.sport;
+  formData.fases = Array.isArray(val?.fases) ? val.fases : [];
 });
 
 const handleSave = async (ev: Event) => {
   ev.preventDefault();
   isBusy.value = true;
   try {
-    if (docRef) {
-      await setDoc(docRef, formData, { merge: true });
-    } else {
-      await addDoc(colRef, formData);
-    }
+    await setDoc(leagueRef, formData, { merge: true });
     router.push({ name: 'admin' });
   } catch (err) {
     console.warn('Error saving document:', err);

@@ -3,14 +3,15 @@ import type { Categorie } from './categories';
 import type { League } from './leagues';
 import type { Multi } from './multies';
 import type { Sponsor } from './sponsors';
-import type { Team } from './teams';
-import type { Game } from './games';
 import type { Settings } from './settings';
 import type { Player } from './players';
 import type { Court, Facilitie } from './facilities';
+import type { Game } from './games';
+import type { Team } from './teams';
 import type { Fase } from './fases';
+import type { LeagueComputed } from './leaguesComputed';
 
-export const rootProvided = Symbol() as InjectionKey<{
+export interface RootInjections {
   settings: ComputedRef<Settings>;
   categories: Ref<Categorie[]>;
   multies: Ref<Multi[]>;
@@ -20,13 +21,17 @@ export const rootProvided = Symbol() as InjectionKey<{
   facilities: Ref<Facilitie[]>;
   courts: Ref<Court[]>;
   isEditor?: Ref<boolean>;
-}>;
+}
+export const rootProvided = Symbol() as InjectionKey<RootInjections>;
 
-export const adminLeagueProvided = Symbol() as InjectionKey<{
-  league: Ref<League | undefined>;
-  multi: Ref<Multi | undefined>;
-  categorie: Ref<Categorie | undefined>;
-  teams: Ref<Team[]>;
+export interface LeagueInjections {
+  leagueComputed: Ref<LeagueComputed>;
   games: Ref<Game[]>;
+}
+export const leagueProvided = Symbol() as InjectionKey<LeagueInjections>;
+export interface LeagueAdminInjections {
+  games: Ref<Game[]>;
+  teams: Ref<Team[]>;
   fases: Ref<Fase[]>;
-}>;
+}
+export const leagueAdminProvided = Symbol() as InjectionKey<LeagueAdminInjections>;

@@ -52,7 +52,7 @@ import { computed } from 'vue';
 import InputComp from '@/components/form/InputComp.vue';
 import ButtonComp from '@/components/ui/ButtonComp.vue';
 import type { Game } from '@/types/games';
-import useLeague from '@/composables/useLeague';
+import useLeagueAdmin from '@/composables/useLeagueAdmin';
 
 interface IProps {
   modelValue: Game;
@@ -62,7 +62,8 @@ const props = withDefaults(defineProps<IProps>(), {
   disabled: false,
 });
 
-const { getTeamTitle } = useLeague();
+const { getTeamTitle } = useLeagueAdmin();
+
 const emit = defineEmits(['update:modelValue', 'input']);
 const model = computed({
   get: (): Game => props.modelValue,

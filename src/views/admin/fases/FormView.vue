@@ -1,13 +1,6 @@
 <script lang="ts" setup>
-import { useDocument, useFirestore } from 'vuefire';
-import {
-  addDoc,
-  collection,
-  CollectionReference,
-  deleteDoc,
-  doc,
-  setDoc,
-} from 'firebase/firestore';
+import { useDocument } from 'vuefire';
+import { addDoc, deleteDoc, doc, DocumentReference, setDoc } from 'firebase/firestore';
 import { reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
@@ -17,12 +10,12 @@ import SelectComp from '@/components/form/SelectComp.vue';
 import ButtonComp from '@/components/ui/ButtonComp.vue';
 import ConfirmComp from '@/components/ui/ConfirmComp.vue';
 import type { Fase, FaseId, FaseType } from '@/types/fases';
-import type { LeagueId } from '@/types/leagues';
 import GroupsForm from './GroupsForm.vue';
+import useFirestoreRefs from '@/composables/useFirestoreRefs';
+import type { League, LeagueId } from '@/types/leagues';
 
 const route = useRoute();
 const router = useRouter();
-const db = useFirestore();
 const { t } = useI18n();
 
 const typeOptions: { value: FaseType; text: string }[] = [
@@ -39,16 +32,18 @@ const typeOptions: { value: FaseType; text: string }[] = [
     text: t('globals.faseTypes.playoffs', 2),
   },
 ];
+
 const isBusy = ref<boolean>(false);
-const leagueId = route.params.leagueId as LeagueId;
+const leagueId: LeagueId = route.params.leagueId as FaseId;
 const faseId: FaseId = route.params.faseId as FaseId;
+
 const formData = reactive<Fase>({
   title: '',
   type: typeOptions[0].value,
   groups: [],
 });
-const colRef = collection(db, `leagues/${leagueId}/fases`) as CollectionReference<Fase>;
-const docRef = faseId ? doc(colRef, faseId) : undefined;
+const { fasesColRef, getFaseRef } = useFirestoreRefs();
+const docRef = getFaseRef(faseId);
 const item = docRef
   ? useDocument(docRef, {
       once: true,
@@ -60,11 +55,24 @@ watch(
     if (val) {
       formData.title = val.title || '';
       formData.type = val.type || typeOptions[0].value;
-      formData.groups = val.groups || [];
+      formData.groups = Array.isArray(val.groups) ? val.groups : [];
     }
   },
   { immediate: true },
 );
+
+const { leagueRef } = useFirestoreRefs();
+const league = useDocument(leagueRef, {
+  once: true,
+});
+const leagueData = reactive<League>({
+  multiId: '',
+  sport: 'soccer',
+  fases: [],
+});
+watch(league, (val) => {
+  leagueData.fases = Array.isArray(val?.fases) ? val.fases : [];
+});
 
 const handleAddGroup = () => {
   formData.groups = [...formData.groups, { title: 'new Group', teams: [] }];
@@ -77,8 +85,10 @@ const handleSave = async (ev: Event) => {
   try {
     if (docRef) {
       await setDoc(docRef, payload, { merge: true });
-    } else {
-      await addDoc(colRef, payload);
+    } else if (fasesColRef) {
+      const docRef = await addDoc(fasesColRef, payload);
+      leagueData.fases.push(docRef.id);
+      await setDoc(leagueRef, { fases: leagueData.fases }, { merge: true });
     }
     router.push({ name: 'admin-league-fases' });
   } catch (err) {
@@ -89,8 +99,12 @@ const handleSave = async (ev: Event) => {
 };
 const handleRemove = async () => {
   try {
-    await deleteDoc(doc(colRef, faseId));
-    router.push({ name: 'admin-league-fases' });
+    if (fasesColRef) {
+      await deleteDoc(doc(fasesColRef, faseId));
+      leagueData.fases = leagueData.fases.filter((i) => i !== faseId);
+      await setDoc(leagueRef, leagueData, { merge: true });
+      router.push({ name: 'admin-league-fases' });
+    }
   } catch (error) {
     console.warn('Error removing document:', error);
   }

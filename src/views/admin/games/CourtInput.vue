@@ -15,7 +15,7 @@ import SelectComp from '@/components/form/SelectComp.vue';
 import FieldComp from '@/components/form/FieldComp.vue';
 import { rootProvided } from '@/types/injections';
 import type { Court, CourtId, Facilitie, FacilitieId } from '@/types/facilities';
-import useLeague from '@/composables/useLeague';
+import useLeagueAdmin from '@/composables/useLeagueAdmin';
 
 interface IProps {
   modelValue: CourtId;
@@ -27,12 +27,12 @@ const props = withDefaults(defineProps<IProps>(), {
 
 const emit = defineEmits(['update:modelValue']);
 
-const { getCourtDetails } = useLeague();
 const injectedRootData = inject(rootProvided);
 const { facilities, courts } = injectedRootData as {
   facilities: Ref<Facilitie[]>;
   courts: Ref<Court[]>;
 };
+const { getCourtDetails } = useLeagueAdmin();
 
 const facilitieId = ref<FacilitieId>(
   (props.modelValue ? getCourtDetails(props.modelValue)?.docId : '') as string,

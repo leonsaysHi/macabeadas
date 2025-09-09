@@ -68,40 +68,46 @@ export default [
     component: () => import('@/views/admin/leagues/FormView.vue'),
   },
   {
-    path: 'league/:leagueId',
-    name: 'admin-league',
-    redirect: { name: 'admin-league-teams' },
-    component: () => import('@/views/admin/leagues/HomeView.vue'),
+    path: '',
+    component: () => import('@/views/admin/leagues/DataView.vue'),
     children: [
       {
-        path: 'teams',
-        name: 'admin-league-teams',
-        component: () => import('@/views/admin/teams/ListView.vue'),
-      },
-      {
-        path: 'team/:teamId?',
-        name: 'admin-league-team-edit',
-        component: () => import('@/views/admin/teams/FormView.vue'),
-      },
-      {
-        path: 'fases',
-        name: 'admin-league-fases',
-        component: () => import('@/views/admin/fases/ListView.vue'),
-      },
-      {
-        path: 'fase/:faseId?',
-        name: 'admin-league-fase-edit',
-        component: () => import('@/views/admin/fases/FormView.vue'),
-      },
-      {
-        path: 'games',
-        name: 'admin-league-games',
-        component: () => import('@/views/admin/games/ListView.vue'),
-      },
-      {
-        path: 'game/:gameId?',
-        name: 'admin-league-game-edit',
-        component: () => import('@/views/admin/games/FormView.vue'),
+        path: 'league/:leagueId',
+        name: 'admin-league',
+        redirect: { name: 'admin-league-teams' },
+        component: () => import('@/views/admin/leagues/HomeView.vue'),
+        children: [
+          {
+            path: 'teams',
+            name: 'admin-league-teams',
+            component: () => import('@/views/admin/teams/ListView.vue'),
+          },
+          {
+            path: 'team/:teamId?',
+            name: 'admin-league-team-edit',
+            component: () => import('@/views/admin/teams/FormView.vue'),
+          },
+          {
+            path: 'fases',
+            name: 'admin-league-fases',
+            component: () => import('@/views/admin/fases/ListView.vue'),
+          },
+          {
+            path: 'fase/:faseId?',
+            name: 'admin-league-fase-edit',
+            component: () => import('@/views/admin/fases/FormView.vue'),
+          },
+          {
+            path: 'games',
+            name: 'admin-league-games',
+            component: () => import('@/views/admin/games/ListView.vue'),
+          },
+          {
+            path: 'game/:gameId?',
+            name: 'admin-league-game-edit',
+            component: () => import('@/views/admin/games/FormView.vue'),
+          },
+        ],
       },
     ],
   },

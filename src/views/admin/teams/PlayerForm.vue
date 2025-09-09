@@ -33,15 +33,13 @@ import FieldComp from '@/components/form/FieldComp.vue';
 import InputComp from '@/components/form/InputComp.vue';
 import SelectComp from '@/components/form/SelectComp.vue';
 import ButtonComp from '@/components/ui/ButtonComp.vue';
+import useLeagueAdmin from '@/composables/useLeagueAdmin';
 import type { Option } from '@/types/comp-fields';
-import { adminLeagueProvided, rootProvided } from '@/types/injections';
-import type { Player } from '@/types/players';
-import type { PlayerId, TeamPlayer } from '@/types/teams';
+import { rootProvided } from '@/types/injections';
+import type { Player, PlayerId } from '@/types/players';
+import type { TeamPlayer } from '@/types/teams';
 import { computed, inject, reactive, watch } from 'vue';
 import { useRoute } from 'vue-router';
-
-const injectedData = inject(rootProvided);
-const players = injectedData?.players;
 
 interface IProps {
   value?: TeamPlayer;
@@ -54,8 +52,9 @@ const props = withDefaults(defineProps<IProps>(), {
 const route = useRoute();
 const teamId = route.params.teamId as string;
 
-const injectedAdminLeagueData = inject(adminLeagueProvided);
-const teams = injectedAdminLeagueData?.teams;
+const injectedRootData = inject(rootProvided);
+const players = injectedRootData?.players;
+const { teams } = useLeagueAdmin();
 
 const leaguePlayers = computed<PlayerId[]>(() =>
   Array.isArray(teams?.value)

@@ -125,22 +125,20 @@ import FieldComp from '@/components/form/FieldComp.vue';
 import ButtonComp from '@/components/ui/ButtonComp.vue';
 import { computed, inject, reactive, ref } from 'vue';
 import XlsxUpload from '@/components/form/XlsxUpload.vue';
-import { adminLeagueProvided, rootProvided } from '@/types/injections';
+import { rootProvided } from '@/types/injections';
 import DataTableComp from '@/components/ui/DataTableComp.vue';
 import { useI18n } from 'vue-i18n';
-import type { PlayerId, TeamId, TeamPlayer } from '@/types/teams';
+import type { TeamId, TeamPlayer } from '@/types/teams';
 import BadgeComp from '@/components/ui/BadgeComp.vue';
 import { collection, CollectionReference, doc, writeBatch } from 'firebase/firestore';
 import { playerConverter } from '@/utils/firestore';
-import type { Player } from '@/types/players';
+import type { Player, PlayerId } from '@/types/players';
 import { useFirestore } from 'vuefire';
 import DateFormat from '@/components/ui/DateFormat.vue';
-import { isTemplateExpression } from 'typescript';
+import useLeagueAdmin from '@/composables/useLeagueAdmin';
 
 const db = useFirestore();
 const { t } = useI18n();
-const injectedData = inject(rootProvided);
-const players = injectedData?.players;
 
 interface IProps {
   currentTeamId?: TeamId;
@@ -170,9 +168,9 @@ interface ComparedPlayer extends ImportedPlayer {
   compared: ImportedStatus;
 }
 
-const injectedAdminLeagueData = inject(adminLeagueProvided);
-const teams = injectedAdminLeagueData?.teams;
-const multi = injectedAdminLeagueData?.multi;
+const injectedRootData = inject(rootProvided);
+const players = injectedRootData?.players;
+const { teams, multi } = useLeagueAdmin();
 
 const leaguePlayers = computed<PlayerId[]>(() =>
   Array.isArray(teams?.value)
