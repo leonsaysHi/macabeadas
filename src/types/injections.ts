@@ -9,7 +9,7 @@ import type { Court, Facilitie } from './facilities';
 import type { Game } from './games';
 import type { Team } from './teams';
 import type { Fase } from './fases';
-import type { LeagueComputed } from './leaguesComputed';
+import type { GameComputed, LeagueComputed } from './leaguesComputed';
 
 export interface RootInjections {
   settings: ComputedRef<Settings>;
@@ -24,11 +24,13 @@ export interface RootInjections {
 }
 export const rootProvided = Symbol() as InjectionKey<RootInjections>;
 
+// Front
 export interface LeagueInjections {
   leagueComputed: Ref<LeagueComputed>;
-  games: Ref<Game[]>;
+  gamesComputed: Ref<GameComputed[]>;
 }
 export const leagueProvided = Symbol() as InjectionKey<LeagueInjections>;
+// Admin
 export interface LeagueAdminInjections {
   games: Ref<Game[]>;
   teams: Ref<Team[]>;

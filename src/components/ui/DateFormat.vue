@@ -1,9 +1,9 @@
 <template>
-  <template v-if="value && dateObj">
+  <template v-if="dateObj">
     <time :date="dateObj">{{ formattedString }}</time>
   </template>
   <template v-else>
-    <ValueOutput :value="value" :no-value-class="props.noValueClass" :mute="false" />
+    <ValueOutput value="n/a" :no-value-class="props.noValueClass" :mute="false" />
   </template>
 </template>
 

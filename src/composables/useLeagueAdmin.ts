@@ -1,7 +1,7 @@
 import type { Categorie } from '@/types/categories';
 import type { CourtDetails, CourtId } from '@/types/facilities';
 import type { Fase, FaseGroup, FaseId } from '@/types/fases';
-import type { Game } from '@/types/games';
+import type { Game, GameId } from '@/types/games';
 import {
   leagueAdminProvided,
   rootProvided,
@@ -12,6 +12,7 @@ import type { League, Sport } from '@/types/leagues';
 import type {
   ComputedPlayerStats,
   ComputedTeamStats,
+  GameComputed,
   LeagueComputed,
   LeagueComputedFase,
   LeagueComputedGroup,
@@ -234,6 +235,42 @@ export default function useLeagueAdmin() {
     }, [] as PlayerComputed[]);
   };
 
+  const getComputedGame = (item: Game): GameComputed => {
+    const {
+      id: gameId,
+      faseId,
+      datetime,
+      status,
+      team1: teamId1,
+      team2: teamId2,
+      scores1,
+      scores2,
+      courtId,
+    } = item;
+    const groupIdx = fases.value
+      .find((fase: Fase) => fase.id === faseId)
+      ?.groups.findIndex((group: FaseGroup) => group.teams.includes(teamId1)) as number;
+    const scoreFinal1 = scores1.reduce((tot: number, p: number) => tot + p, 0);
+    const scoreFinal2 = scores2.reduce((tot: number, p: number) => tot + p, 0);
+    const facilityId = courtId;
+    return {
+      to: { name: 'league-game', params: { gameId } },
+      gameId: gameId as GameId,
+      faseId,
+      groupIdx,
+      datetime: datetime as Date,
+      status,
+      team1: { teamId: teamId1, sponsorId: (getTeam(teamId1) as Team).sponsorId as SponsorId },
+      team2: { teamId: teamId2, sponsorId: (getTeam(teamId2) as Team).sponsorId as SponsorId },
+      scores1,
+      scores2,
+      scoreFinal1,
+      scoreFinal2,
+      facilityId,
+      courtId,
+    };
+  };
+
   return {
     leagueId,
     categorie,
@@ -254,5 +291,6 @@ export default function useLeagueAdmin() {
     getComputedLeague,
     getComputedTeams,
     getComputedPlayers,
+    getComputedGame,
   };
 }

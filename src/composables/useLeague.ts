@@ -1,7 +1,7 @@
 import { computed, inject } from 'vue';
 import { useRoute } from 'vue-router';
 import { leagueProvided, rootProvided } from '@/types/injections';
-import type { Sponsor, SponsorId } from '@/types/sponsors';
+import type { SponsorId } from '@/types/sponsors';
 import type { PlayerId } from '@/types/players';
 import type { League } from '@/types/leagues';
 import type { Multi } from '@/types/multies';
@@ -11,14 +11,11 @@ import type {
   ComputedTeamStats,
   LeagueComputedFase,
   LeagueComputedGroup,
-  LeagueComputedPlayer,
   LeagueComputedTeam,
 } from '@/types/leaguesComputed';
 import type { FaseId } from '@/types/fases';
 import type { RankTeam } from '@/components/stats/RankComp.vue';
 import useRankStats from './useRankStats';
-import type { Game } from '@/types/games';
-import type { GameComputed } from '@/types/gamesComputed';
 
 export default function useLeagueComputed() {
   const { mergeRankStats } = useRankStats();
@@ -45,7 +42,7 @@ export default function useLeagueComputed() {
   );
 
   const injectedLeagueData = inject(leagueProvided);
-  const games = injectedLeagueData?.games;
+  const gamesComputed = injectedLeagueData?.gamesComputed;
   const leagueComputed = injectedLeagueData?.leagueComputed;
 
   const teams = computed<RankTeam[]>(() => getRank());
@@ -60,57 +57,7 @@ export default function useLeagueComputed() {
   const getGroups = (faseId: FaseId): LeagueComputedGroup[] | undefined =>
     leagueComputed?.value?.fases.find((item) => item.faseId === faseId)?.groups;
 
-  const playersComputed = computed(() => [] as LeagueComputedPlayer[]);
-
-  const computedGames = computed<GameComputed[]>(() =>
-    Array.isArray(games?.value)
-      ? games.value.map((item: Game): GameComputed => {
-          const {
-            id: gameId,
-            faseId,
-            datetime,
-            status,
-            team1: teamId1,
-            team2: teamId2,
-            scores1,
-            scores2,
-            courtId,
-            boxscore,
-          } = item;
-          const groupIdx = fases.value
-            .find((fase: LeagueComputedFase) => fase.faseId === faseId)
-            ?.groups.findIndex((group: LeagueComputedGroup) =>
-              group.teams.find((team: LeagueComputedTeam) => team.teamId === teamId1),
-            );
-          const team1 = teams.value.find((team: RankTeam) => team.teamId === teamId1);
-          const team2 = teams.value.find((team: RankTeam) => team.teamId === teamId2);
-          const scoreFinal1 = scores1.reduce((tot: number, p: number) => tot + p, 0);
-          const scoreFinal2 = scores2.reduce((tot: number, p: number) => tot + p, 0);
-          const facilityId = courtId;
-          return {
-            to: { name: 'league-game', params: { gameId } },
-            gameId,
-            faseId,
-            groupIdx,
-            datetime,
-            status,
-            team1,
-            team2,
-            scores1,
-            scores2,
-            scoreFinal1,
-            scoreFinal2,
-            facilityId,
-            courtId,
-            boxscore,
-          };
-        })
-      : [],
-  );
-
   const getPlayer = (id: PlayerId) => players?.value.find((item) => item.id === id);
-  const getPlayerStats = (id: TeamId) =>
-    playersComputed?.value.find((item) => item.playerId === id);
 
   const getTeam = (id: TeamId) => teams?.value.find((item) => item.teamId === id);
 
@@ -185,19 +132,18 @@ export default function useLeagueComputed() {
     league,
     leagueId,
 
+    // League
     leagueComputed,
     teams,
     fases,
     getGroups,
-    playersComputed,
-    games,
-    computedGames,
+    // games
+    gamesComputed,
 
     getRank,
     getPlayer,
     getSponsor,
     getTeamSponsor,
     getTeamStats,
-    getPlayerStats,
   };
 }

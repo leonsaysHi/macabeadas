@@ -1,7 +1,10 @@
+import type { RankTeam } from '@/components/stats/RankComp.vue';
 import type { FaseId } from './fases';
+import type { GameId, GameStatus } from './games';
 import type { LeagueId, Sport } from './leagues';
 import type { SponsorId } from './sponsors';
 import type { Last5, Team, TeamId, TeamPlayer } from './teams';
+import type { CourtId, FacilitieId } from './facilities';
 
 // Computed League
 export interface LeagueComputed {
@@ -42,6 +45,24 @@ export interface LeagueComputedPlayer extends TeamPlayer {
 export interface ComputedPlayerStats {
   sport: Sport;
   gp: number;
+}
+
+// Computed Games
+export interface GameComputed {
+  gameId: GameId;
+  faseId: FaseId;
+  groupIdx: number;
+  to: object;
+  datetime: Date;
+  status: GameStatus;
+  team1: { teamId: TeamId; sponsorId: SponsorId };
+  team2: { teamId: TeamId; sponsorId: SponsorId };
+  scores1: number[];
+  scores2: number[];
+  scoreFinal1: number;
+  scoreFinal2: number;
+  facilityId: FacilitieId;
+  courtId: CourtId;
 }
 
 // Computed Team

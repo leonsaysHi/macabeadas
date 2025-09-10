@@ -8,40 +8,42 @@ import { gameConverter } from '@/utils/firestore';
 import { collection, doc } from 'firebase/firestore';
 import { useRoute } from 'vue-router';
 import { useFirestore } from 'vuefire';
+
 export default function useFirestoreRefs() {
   const db = useFirestore();
   const route = useRoute();
-  const leagueId: LeagueId = route.params.leagueId as FaseId;
+  const leagueId: LeagueId = route.params.leagueId as LeagueId;
 
   const usersColRef = collection(db, 'users');
-  const getUserRef = (userId: UserId) => (userId ? doc(usersColRef, userId) : undefined);
+  const getUserRef = (userId: UserId) => doc(usersColRef, userId);
 
   const categoriesColRef = collection(db, 'categories');
   const multiesColRef = collection(db, 'multies');
   const leaguesColRef = collection(db, 'leagues');
-  const leagueRef = leagueId ? doc(leaguesColRef, leagueId) : undefined;
 
-  const teamsColRef = leagueRef ? collection(leagueRef, 'teams') : undefined;
+  // League
+  const leagueRef = doc(leaguesColRef, leagueId);
+  // League's Teams
+  const teamsColRef = collection(leagueRef, 'teams');
+  // League's Fases
+  const fasesColRef = collection(leagueRef, 'fases');
+  const getFaseRef = (faseId: FaseId) => doc(fasesColRef, faseId);
+  // League's Games
+  const gamesColRef = collection(leagueRef, 'games').withConverter(gameConverter);
+  const getGameRef = (gameId: GameId) => doc(gamesColRef, gameId);
 
-  const fasesColRef = leagueRef ? collection(leagueRef, 'fases') : undefined;
-  const getFaseRef = (faseId: FaseId) =>
-    fasesColRef && faseId ? doc(fasesColRef, faseId) : undefined;
-
-  const gamesColRef = leagueRef
-    ? collection(leagueRef, 'games').withConverter(gameConverter)
-    : undefined;
-  const getGameRef = (gameId: GameId) =>
-    gamesColRef && gameId ? doc(gamesColRef, gameId) : undefined;
-
-  const computedLeaguesColRef = leagueRef ? collection(leagueRef, 'computed-leagues') : undefined;
-  const getComputedLeagueRef = () =>
-    computedLeaguesColRef ? doc(computedLeaguesColRef, leagueId) : undefined;
-  const computedTeamsColRef = leagueRef ? collection(leagueRef, 'computed-teams') : undefined;
-  const getComputedTeamRef = (teamId: TeamId) =>
-    computedTeamsColRef && teamId ? doc(computedTeamsColRef, teamId) : undefined;
-  const computedPlayersColRef = leagueRef ? collection(leagueRef, 'computed-players') : undefined;
-  const getComputedPlayerRef = (playerId: PlayerId) =>
-    computedPlayersColRef && playerId ? doc(computedPlayersColRef, playerId) : undefined;
+  // Computed League
+  const computedLeaguesColRef = collection(leagueRef, 'computed-leagues');
+  const computedLeagueRef = doc(computedLeaguesColRef, leagueId);
+  // Computed Teams
+  const computedTeamsColRef = collection(leagueRef, 'computed-teams');
+  const getComputedTeamRef = (teamId: TeamId) => doc(computedTeamsColRef, teamId);
+  // Computed Players
+  const computedPlayersColRef = collection(leagueRef, 'computed-players');
+  const getComputedPlayerRef = (playerId: PlayerId) => doc(computedPlayersColRef, playerId);
+  // Computed Games
+  const computedGamesColRef = collection(leagueRef, 'computed-games').withConverter(gameConverter);
+  const computedGameRef = (gameId: GameId) => doc(computedGamesColRef, gameId);
 
   return {
     usersColRef,
@@ -57,8 +59,10 @@ export default function useFirestoreRefs() {
     gamesColRef,
     getGameRef,
 
-    getComputedLeagueRef,
+    computedLeagueRef,
     getComputedTeamRef,
     getComputedPlayerRef,
+    computedGamesColRef,
+    computedGameRef,
   };
 }

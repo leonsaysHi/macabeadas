@@ -7,8 +7,12 @@ import SelectComp from '@/components/form/SelectComp.vue';
 import type { FaseId } from '@/types/fases';
 import type { Option } from '@/types/comp-fields';
 import FieldComp from '@/components/form/FieldComp.vue';
-import type { LeagueComputedFase, LeagueComputedGroup } from '@/types/leaguesComputed';
-import type { GameComputed } from '@/types/gamesComputed';
+import type {
+  GameComputed,
+  LeagueComputedFase,
+  LeagueComputedGroup,
+} from '@/types/leaguesComputed';
+
 import GamesList from '@/components/games/ListView.vue';
 
 interface Filters {
@@ -17,16 +21,12 @@ interface Filters {
 }
 const { t } = useI18n();
 
-const { computedGames, fases, getGroups, getTeamSponsor } = useLeague();
+const { gamesComputed, fases, getGroups } = useLeague();
 
 const filters = reactive<Filters>({
   faseId: '',
   groupIdx: '0',
 });
-
-const games = computed<GameComputed[]>(() =>
-  Array.isArray(computedGames?.value) ? computedGames.value : [],
-);
 
 const fasesOptions = computed<Option[]>(() =>
   Array.isArray(fases.value)
@@ -62,6 +62,16 @@ watch(
   },
   { immediate: true },
 );
+
+const games = computed<GameComputed[]>(() =>
+  Array.isArray(gamesComputed?.value)
+    ? gamesComputed.value.filter(
+        (item: GameComputed) =>
+          !filters.faseId ||
+          (filters.faseId === item.faseId && Number(filters.groupIdx) === item.groupIdx),
+      )
+    : [],
+);
 </script>
 
 <template>
@@ -73,7 +83,14 @@ watch(
         <SelectComp
           v-model="filters.faseId"
           :options="fasesOptions"
-          :disabled="fasesOptions.length === 1"
+          :disabled="fasesOptions.length < 2"
+        />
+      </FieldComp>
+      <FieldComp :label="$t('globals.group')" class="col">
+        <SelectComp
+          v-model="filters.groupIdx"
+          :options="groupOptions"
+          :disabled="groupOptions.length < 2"
         />
       </FieldComp>
     </div>

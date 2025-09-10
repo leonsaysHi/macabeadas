@@ -21,7 +21,7 @@ const {
   teamsColRef,
   gamesColRef,
   fasesColRef,
-  getComputedLeagueRef,
+  computedLeagueRef,
   getComputedTeamRef,
   getComputedPlayerRef,
 } = useFirestoreRefs();
@@ -62,27 +62,24 @@ const { league, multi, categorie, getComputedLeague, getComputedTeams, getComput
   useLeagueAdmin();
 
 const handleUpdatedGame = () => {
-  const compLeagueRef = getComputedLeagueRef();
-  if (compLeagueRef) {
-    const batch = writeBatch(db);
-    const computedLeague = getComputedLeague();
-    batch.set(compLeagueRef, computedLeague);
-    const computedTeams = getComputedTeams();
-    computedTeams.forEach((item: TeamComputed) => {
-      const docRef = getComputedTeamRef(item.teamId);
-      if (docRef) {
-        batch.set(docRef, item, { merge: true });
-      }
-    });
-    const computedPlayers = getComputedPlayers();
-    computedPlayers.forEach((item: PlayerComputed) => {
-      const docRef = getComputedPlayerRef(item.playerId);
-      if (docRef) {
-        batch.set(docRef, item, { merge: true });
-      }
-    });
-    batch.commit();
-  }
+  const batch = writeBatch(db);
+  const computedLeague = getComputedLeague();
+  batch.set(computedLeagueRef, computedLeague);
+  const computedTeams = getComputedTeams();
+  computedTeams.forEach((item: TeamComputed) => {
+    const docRef = getComputedTeamRef(item.teamId);
+    if (docRef) {
+      batch.set(docRef, item, { merge: true });
+    }
+  });
+  const computedPlayers = getComputedPlayers();
+  computedPlayers.forEach((item: PlayerComputed) => {
+    const docRef = getComputedPlayerRef(item.playerId);
+    if (docRef) {
+      batch.set(docRef, item, { merge: true });
+    }
+  });
+  batch.commit();
 };
 </script>
 

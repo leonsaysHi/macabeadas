@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { addDoc, deleteDoc, doc, setDoc } from 'firebase/firestore';
+import { addDoc, deleteDoc, doc, setDoc, writeBatch } from 'firebase/firestore';
 import { computed, inject, reactive, ref, watch, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import FieldComp from '@/components/form/FieldComp.vue';
 import ButtonComp from '@/components/ui/ButtonComp.vue';
 import ConfirmComp from '@/components/ui/ConfirmComp.vue';
-import type { Game, GameId, GameStatus } from '@/types/games';
+import type { Game, GameBoxScore, GameId, GameStatus } from '@/types/games';
 import DateInputComp from '@/components/form/DateInputComp.vue';
 import SelectComp from '@/components/form/SelectComp.vue';
 import { rootProvided } from '@/types/injections';
@@ -18,7 +18,10 @@ import ScoresInput from './ScoresInput.vue';
 import type { Court, Facilitie, FacilitieId } from '@/types/facilities';
 import BoxscoreSheets from './BoxscoreSheets.vue';
 import useGame from '@/composables/useGame';
+import { useFirestore } from 'vuefire';
+import useFirestoreRefs from '@/composables/useFirestoreRefs';
 
+const db = useFirestore();
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
@@ -29,7 +32,8 @@ const { facilities, courts } = injectedRootData as {
   facilities: Ref<Facilitie[]>;
   courts: Ref<Court[]>;
 };
-const { fases, games, getTeamTitle, getCourtDetails, getTeam } = useLeagueAdmin();
+const { computedGameRef } = useFirestoreRefs();
+const { fases, games, getTeamTitle, getCourtDetails, getTeam, getComputedGame } = useLeagueAdmin();
 const { colRef, docRef } = useGame();
 
 const isBusy = ref<boolean>(false);
@@ -141,7 +145,7 @@ const team1Players = computed(() => {
   return team?.players || [];
 });
 watch(team1Players, (val, oldVal) => {
-  const newVal = { ...formData.boxscore };
+  const newVal = { ...formData.boxscore } as GameBoxScore;
   if (Array.isArray(oldVal)) {
     oldVal.forEach((player: TeamPlayer) => delete newVal[player.playerId]);
   }
@@ -186,13 +190,18 @@ const statusesOptions = (['none', 'live', 'finished'] as GameStatus[]).map(
 
 const handleSave = async (ev: Event) => {
   ev.preventDefault();
-  isBusy.value = true;
   try {
-    if (docRef) {
-      await setDoc(docRef, formData, { merge: true });
-    } else {
-      await addDoc(colRef, formData);
-    }
+    isBusy.value = true;
+    const batch = writeBatch(db);
+    const _docRef = docRef || doc(colRef);
+
+    // game
+    batch.set(_docRef, formData, { merge: true });
+
+    // computed
+    const computedData = getComputedGame({ id: _docRef.id, ...formData });
+    batch.set(computedGameRef(_docRef.id), computedData, { merge: true });
+    await batch.commit();
     emit('updated');
     router.push({ name: 'admin-league-games' });
   } catch (err) {
@@ -203,7 +212,13 @@ const handleSave = async (ev: Event) => {
 const handleRemove = async () => {
   try {
     isBusy.value = true;
-    await deleteDoc(doc(colRef, gameId));
+    const batch = writeBatch(db);
+    // game
+    batch.delete(docRef);
+    // computed game
+    batch.delete(computedGameRef(docRef.id));
+    await batch.commit();
+    emit('updated');
     router.push({ name: 'admin-league-games' });
   } catch (error) {
     console.warn('Error removing document:', error);

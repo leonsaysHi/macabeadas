@@ -6,7 +6,7 @@ import { useDocument } from 'vuefire';
 import useLeagueAdmin from './useLeagueAdmin';
 import useFirestoreRefs from './useFirestoreRefs';
 
-export default function useCurrentGame() {
+export default function useGame() {
   const {} = useLeagueAdmin();
 
   const route = useRoute();

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import useLeague from '@/composables/useLeague';
 
-const { categorie, multi, leagueId, league, games, teams } = useLeague();
+const { categorie, multi, leagueId, league } = useLeague();
 </script>
 
 <template>
@@ -17,7 +17,7 @@ const { categorie, multi, leagueId, league, games, teams } = useLeague();
   <ul class="nav nav-tabs mb-4">
     <li class="nav-item">
       <RouterLink class="nav-link" :to="{ name: 'league-games', params: { leagueId } }">
-        {{ games?.length || '0' }}&nbsp;{{ $t('globals.game', 2) }}
+        {{ $t('globals.game', 2) }}
       </RouterLink>
     </li>
     <li class="nav-item">
@@ -27,7 +27,7 @@ const { categorie, multi, leagueId, league, games, teams } = useLeague();
     </li>
     <li class="nav-item">
       <RouterLink class="nav-link" :to="{ name: 'league-teams', params: { leagueId } }">
-        {{ teams?.length || '0' }}&nbsp;{{ $t('globals.team', 2) }}
+        {{ $t('globals.team', 2) }}
       </RouterLink>
     </li>
   </ul>

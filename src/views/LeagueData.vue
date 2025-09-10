@@ -4,30 +4,29 @@ import { leagueProvided } from '@/types/injections';
 import { computed, provide } from 'vue';
 import useFirestoreRefs from '@/composables/useFirestoreRefs';
 import { useCollection, useDocument } from 'vuefire';
-import type { Game } from '@/types/games';
 import type { FirestoreError } from 'firebase/firestore';
-import type { LeagueComputed } from '@/types/leaguesComputed';
+import type { GameComputed, LeagueComputed } from '@/types/leaguesComputed';
 
-const { gamesColRef, getComputedLeagueRef } = useFirestoreRefs();
+const { computedLeagueRef, computedGamesColRef } = useFirestoreRefs();
 const {
-  data: games,
+  data: gamesComputed,
   pending: isGamesPending,
   error: gamesError,
-} = useCollection<Game>(gamesColRef);
+} = useCollection<GameComputed>(computedGamesColRef);
 
 const {
   data: leagueComputed,
   pending: isComputedLeaguePending,
   error: computedLeagueError,
-} = useDocument<LeagueComputed>(getComputedLeagueRef);
+} = useDocument<LeagueComputed>(computedLeagueRef);
 
 provide(leagueProvided, {
-  games,
+  gamesComputed,
   leagueComputed,
 });
 
 const isReady = computed<boolean>(() => {
-  return !isGamesPending.value || !isComputedLeaguePending.value;
+  return !isGamesPending.value || !isComputedLeaguePending.value || !leagueComputed.value;
 });
 const hasError = computed<{ messages: FirestoreError[] } | null>(() => {
   return gamesError.value
