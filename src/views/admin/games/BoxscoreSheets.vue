@@ -73,8 +73,8 @@ const items = computed<TeamPlayer[]>(() => {
     <template #row.dnp="{ item }">
       <CheckComp
         v-model="model[item.playerId].dnp"
-        :value="1"
-        :uncheck-value="0"
+        :value="0"
+        :uncheck-value="1"
         :disabled="disabled"
         switch
       />

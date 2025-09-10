@@ -3,6 +3,7 @@ import MultiView from '@/views/MultiView.vue';
 import LeagueData from '@/views/LeagueData.vue';
 import LeagueView from '@/views/LeagueView.vue';
 import RankView from '@/views/league/RankView.vue';
+import StatsView from '@/views/league/StatsView.vue';
 import TeamsView from '@/views/teams/ListView.vue';
 import GamesView from '@/views/games/ListView.vue';
 import GameView from '@/views/games/ItemView.vue';
@@ -32,6 +33,11 @@ export default [
             path: 'rank',
             name: 'league-rank',
             component: RankView,
+          },
+          {
+            path: 'stats',
+            name: 'league-stats',
+            component: StatsView,
           },
           {
             path: 'games',

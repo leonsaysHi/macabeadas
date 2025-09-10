@@ -14,10 +14,12 @@ import type {
 } from '@/types/leaguesComputed';
 
 import GamesList from '@/components/games/ListView.vue';
+import type { GameStatus } from '@/types/games';
 
 interface Filters {
   faseId: FaseId | '';
   groupIdx: string;
+  status: GameStatus | '';
 }
 const { t } = useI18n();
 
@@ -26,6 +28,7 @@ const { gamesComputed, fases, getGroups } = useLeague();
 const filters = reactive<Filters>({
   faseId: '',
   groupIdx: '0',
+  status: '',
 });
 
 const fasesOptions = computed<Option[]>(() =>
@@ -63,12 +66,20 @@ watch(
   { immediate: true },
 );
 
+const statusesOptions = (['none', 'live', 'finished'] as GameStatus[]).map(
+  (value: GameStatus): Option => ({
+    text: t(`globals.statuses.${value}`),
+    value,
+  }),
+);
+
 const games = computed<GameComputed[]>(() =>
   Array.isArray(gamesComputed?.value)
     ? gamesComputed.value.filter(
-        (item: GameComputed) =>
-          !filters.faseId ||
-          (filters.faseId === item.faseId && Number(filters.groupIdx) === item.groupIdx),
+        ({ faseId, groupIdx, status }: GameComputed) =>
+          (!filters.faseId ||
+            (filters.faseId === faseId && Number(filters.groupIdx) === groupIdx)) &&
+          (!filters.status || filters.status === status),
       )
     : [],
 );
@@ -78,7 +89,7 @@ const games = computed<GameComputed[]>(() =>
   <section>
     <h2>{{ $t('admin.games.title', 2) }}</h2>
 
-    <div class="row row-cols-3 justify-content-end">
+    <div class="row row-cols-4 justify-content-end">
       <FieldComp :label="$t('globals.fase')" class="col">
         <SelectComp
           v-model="filters.faseId"
@@ -90,6 +101,13 @@ const games = computed<GameComputed[]>(() =>
         <SelectComp
           v-model="filters.groupIdx"
           :options="groupOptions"
+          :disabled="groupOptions.length < 2"
+        />
+      </FieldComp>
+      <FieldComp :label="$t('globals.status')" class="col">
+        <SelectComp
+          v-model="filters.status"
+          :options="statusesOptions"
           :disabled="groupOptions.length < 2"
         />
       </FieldComp>

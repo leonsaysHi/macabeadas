@@ -8,7 +8,7 @@ import type { FaseId } from '@/types/fases';
 import type { Option } from '@/types/comp-fields';
 import FieldComp from '@/components/form/FieldComp.vue';
 import type { LeagueComputedFase, LeagueComputedGroup } from '@/types/leaguesComputed';
-import RankComp from '@/components/tables/RankComp.vue';
+import StatsComp from '@/components/tables/StatsComp.vue';
 
 interface Filters {
   faseId: FaseId | '';
@@ -16,7 +16,7 @@ interface Filters {
 }
 const { t } = useI18n();
 
-const { fases, getGroups, getRank } = useLeague();
+const { fases, getGroups, getStats } = useLeague();
 
 const filters = reactive<Filters>({
   faseId: '',
@@ -58,12 +58,12 @@ watch(
   { immediate: true },
 );
 
-const teams = computed(() => getRank(filters.faseId, Number(filters.groupIdx)));
+const players = computed(() => getStats(filters.faseId, Number(filters.groupIdx)));
 </script>
 
 <template>
   <section>
-    <h2>{{ $t('globals.rank') }}</h2>
+    <h2>{{ $t('globals.stats', 2) }}</h2>
 
     <div class="row row-cols-3 justify-content-end">
       <FieldComp :label="$t('globals.fase')" class="col">
@@ -81,6 +81,6 @@ const teams = computed(() => getRank(filters.faseId, Number(filters.groupIdx)));
         />
       </FieldComp>
     </div>
-    <RankComp :teams="teams" />
+    <StatsComp :players="players" />
   </section>
 </template>

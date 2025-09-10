@@ -21,6 +21,7 @@ import type { ComputedTeamStats } from '@/types/leaguesComputed';
 import type { SponsorId } from '@/types/sponsors';
 import type { TeamId } from '@/types/teams';
 import ImageComp from '../form/ImageComp.vue';
+import type { TableField } from '@/types/comp-datatable';
 
 export interface RankTeam {
   teamId: TeamId;
@@ -37,7 +38,7 @@ const props = withDefaults(defineProps<IProps>(), {});
 
 const { getSponsor } = useLeague();
 
-const fields = [
+const fields: TableField[] = [
   { key: 'pos', label: t('statistics.pos'), formatter: (value, item) => item.stats.pos },
   { key: 'teamId', label: t('globals.team') },
   { key: 'gp', label: t('statistics.gp'), formatter: (value, item) => item.stats.gp },

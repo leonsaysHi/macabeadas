@@ -11,14 +11,18 @@ import type {
   ComputedTeamStats,
   LeagueComputedFase,
   LeagueComputedGroup,
+  LeagueComputedPlayer,
   LeagueComputedTeam,
 } from '@/types/leaguesComputed';
 import type { FaseId } from '@/types/fases';
 import type { RankTeam } from '@/components/stats/RankComp.vue';
-import useRankStats from './useRankStats';
+import useTeamStats from './useTeamStats';
+import usePlayerStats from './usePlayerStats';
+import type { StatsPlayer } from '@/components/tables/StatsComp.vue';
 
 export default function useLeagueComputed() {
-  const { mergeRankStats } = useRankStats();
+  const { mergeTeamStats } = useTeamStats();
+  const { mergePlayerStats } = usePlayerStats();
   const route = useRoute();
   const leagueId = route.params.leagueId as string;
 
@@ -73,7 +77,7 @@ export default function useLeagueComputed() {
                   const tIdx = acc.findIndex((item) => item.teamId === team.teamId);
                   // merging stats here
                   if (acc[tIdx]?.stats) {
-                    acc[tIdx].stats = mergeRankStats([acc[tIdx].stats, team.stats]);
+                    acc[tIdx].stats = mergeTeamStats([acc[tIdx].stats, team.stats]);
                   } else {
                     acc.push({
                       ...team,
@@ -94,32 +98,31 @@ export default function useLeagueComputed() {
           })
       : [];
   };
-  const getTeamStats = (id: TeamId, faseId: FaseId | '') => {
-    const team = getTeam(id);
-    const stats: ComputedTeamStats[] = Array.isArray(leagueComputed?.value?.fases)
-      ? leagueComputed?.value?.fases.reduce(
-          (acc: ComputedTeamStats[], fase: LeagueComputedFase) => {
-            if (faseId === '' || fase.faseId === faseId) {
-              acc.push(
-                ...fase.groups.reduce((_acc: ComputedTeamStats[], group: LeagueComputedGroup) => {
-                  _acc.push(
-                    ...group.teams
-                      .filter((item) => item.teamId === id)
-                      .map((item) => item.stats as ComputedTeamStats),
-                  );
-                  return _acc;
-                }, []),
-              );
-            }
-            return acc;
-          },
-          [],
-        )
+
+  const getStats = (faseId: FaseId | '' = '', groupIdx: number = -1): StatsPlayer[] => {
+    return Array.isArray(leagueComputed?.value?.fases)
+      ? leagueComputed?.value?.fases.reduce((acc: StatsPlayer[], fase: LeagueComputedFase) => {
+          if (faseId === '' || fase.faseId === faseId) {
+            const groups =
+              groupIdx > -1 ? fase.groups.slice(groupIdx, groupIdx + 1) : fase.groups.slice();
+            groups.forEach((group: LeagueComputedGroup) => {
+              group.players.forEach((player: LeagueComputedPlayer) => {
+                const pIdx = acc.findIndex((item) => item.playerId === player.playerId);
+                // merging stats here
+                if (acc[pIdx]?.stats) {
+                  acc[pIdx].stats = mergePlayerStats([acc[pIdx].stats, player.stats]);
+                } else {
+                  acc.push({
+                    ...player,
+                    stats: player.stats,
+                  } as StatsPlayer);
+                }
+              });
+            });
+          }
+          return acc;
+        }, [])
       : [];
-    return {
-      ...team,
-      stats,
-    };
   };
 
   const getSponsor = (id: SponsorId) => sponsors?.value.find((item) => item.id === id);
@@ -141,9 +144,10 @@ export default function useLeagueComputed() {
     gamesComputed,
 
     getRank,
+    getStats,
+
     getPlayer,
     getSponsor,
     getTeamSponsor,
-    getTeamStats,
   };
 }

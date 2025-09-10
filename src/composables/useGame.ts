@@ -1,5 +1,5 @@
 import type { Game, GameId } from '@/types/games';
-import { DocumentReference } from 'firebase/firestore';
+import { doc, DocumentReference } from 'firebase/firestore';
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useDocument } from 'vuefire';
@@ -13,7 +13,7 @@ export default function useGame() {
   const gameId = route.params.gameId as GameId;
 
   const { gamesColRef: colRef, getGameRef } = useFirestoreRefs();
-  const docRef: DocumentReference | undefined = getGameRef(gameId);
+  const docRef: DocumentReference | undefined = gameId ? getGameRef(gameId) : undefined;
   const item = docRef
     ? useDocument<Game>(docRef, { reset: false, wait: true })
     : ref<Game | null>(null);

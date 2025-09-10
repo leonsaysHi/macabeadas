@@ -102,9 +102,12 @@ export default function useLeagueAdmin() {
             const gTeams = group.teams
               .map((teamId: TeamId): LeagueComputedTeam => {
                 const team = teams.value.find(({ id }: Team) => id === teamId) as Team;
-                const teamGames = games.value.filter((item) => {
-                  const { team1, team2 } = item;
-                  return item.status === 'finished' && (team1 === teamId || team2 === teamId);
+                const teamGames = games.value.filter(({ faseId, status, team1, team2 }) => {
+                  return (
+                    faseId === fase.id &&
+                    status === 'finished' &&
+                    (team1 === teamId || team2 === teamId)
+                  );
                 });
                 const teamWins = teamGames.filter(({ team1, team2, scores1, scores2 }: Game) => {
                   return (
@@ -152,12 +155,13 @@ export default function useLeagueAdmin() {
               const team = teams.value.find(({ id }: Team) => id === teamId) as Team;
               const players = team.players.map((item: TeamPlayer): LeagueComputedPlayer => {
                 const playerGames = games.value.filter(
-                  ({ status, team1, team2, boxscore }: Game) => {
+                  ({ faseId, status, team1, team2, boxscore }: Game) => {
                     return (
+                      faseId === fase.id &&
                       status === 'finished' &&
                       (team1 === teamId || team2 === teamId) &&
                       boxscore[item.playerId] &&
-                      !boxscore[item.playerId].dnp
+                      boxscore[item.playerId].dnp === 0
                     );
                   },
                 );

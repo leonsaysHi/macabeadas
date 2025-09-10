@@ -6,11 +6,11 @@
     <template v-else>
       <template v-for="item in props.items" :key="item.id">
         <RouterLink class="hstack gap-2 list-group-item list-group-item-action lh-1" :to="item.to">
-          <div class="team vstack align-items-center">
+          <div class="team vstack gap-1 align-items-center">
+            <ImageComp :src="getSponsor(item.team1.sponsorId)?.logo" :width="45" />
             <strong class="font-team fs-6 lh-1">{{
               getSponsor(item.team1.sponsorId)?.title
             }}</strong>
-            <ImageComp :src="getSponsor(item.team1.sponsorId)?.logo" :width="45" />
           </div>
 
           <div class="">
@@ -38,7 +38,7 @@
             <template v-else-if="item.status === 'finished'">
               <div class="vstack gap-1">
                 <small class="text-center text-body-secondary">
-                  <DateTimeFormat :value="item.datetime" time-style="short" date-style="short" />
+                  <DateFormat :value="item.datetime" />
                 </small>
                 <div class="hstack gap-2 justify-content-center">
                   <div
@@ -59,19 +59,21 @@
 
             <template v-else>
               <div class="vstack gap-1 align-items-center justify-content-center">
-                <strong
-                  ><DateFormat :value="item.datetime" time-style="short" date-style="short"
-                /></strong>
-                <small class="text-body-secondary">
-                  <DateTimeFormat :value="item.datetime" time-style="short" time-only
+                <strong> <DateFormat :value="item.datetime" /></strong>
+                <small class="text-body-secondary"
+                  ><DateTimeFormat
+                    :value="item.datetime"
+                    time-only=""
+                    time-style="short"
+                    date-style="short"
                 /></small>
               </div>
             </template>
           </div>
 
-          <div class="team vstack align-items-center">
-            <strong class="font-team fs-6">{{ getSponsor(item.team2.sponsorId)?.title }}</strong>
+          <div class="team vstack gap-1 align-items-center">
             <ImageComp :src="getSponsor(item.team2.sponsorId)?.logo" :width="45" />
+            <strong class="font-team fs-6">{{ getSponsor(item.team2.sponsorId)?.title }}</strong>
           </div>
         </RouterLink>
       </template>
@@ -82,11 +84,11 @@
 <script lang="ts" setup>
 import SpinnerComp from '../SpinnerComp.vue';
 import { useI18n } from 'vue-i18n';
-import type { GameComputed } from '@/types/gamesComputed';
 import DateFormat from '../ui/DateFormat.vue';
 import DateTimeFormat from '../ui/DateTimeFormat.vue';
 import useLeague from '@/composables/useLeague';
 import ImageComp from '../form/ImageComp.vue';
+import type { GameComputed } from '@/types/leaguesComputed';
 const { t } = useI18n();
 
 const { getSponsor } = useLeague();

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { addDoc, deleteDoc, doc, setDoc, writeBatch } from 'firebase/firestore';
+import { doc, writeBatch } from 'firebase/firestore';
 import { computed, inject, reactive, ref, watch, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import FieldComp from '@/components/form/FieldComp.vue';
@@ -48,7 +48,7 @@ const formData = reactive<Game>({
   scores2: [0],
   faseId: '',
   datetime: new Date(),
-  status: 'none' as GameStatus,
+  status: 'none',
   courtId: '',
   boxscore: {},
 });

@@ -26,6 +26,11 @@ const { categorie, multi, leagueId, league } = useLeague();
       </RouterLink>
     </li>
     <li class="nav-item">
+      <RouterLink class="nav-link" :to="{ name: 'league-stats', params: { leagueId } }">
+        {{ $t('globals.stats', 2) }}
+      </RouterLink>
+    </li>
+    <li class="nav-item">
       <RouterLink class="nav-link" :to="{ name: 'league-teams', params: { leagueId } }">
         {{ $t('globals.team', 2) }}
       </RouterLink>

@@ -1,4 +1,3 @@
-import type { RankTeam } from '@/components/stats/RankComp.vue';
 import type { FaseId } from './fases';
 import type { GameId, GameStatus } from './games';
 import type { LeagueId, Sport } from './leagues';
