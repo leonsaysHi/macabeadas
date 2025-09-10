@@ -7,25 +7,26 @@ import SelectComp from '@/components/form/SelectComp.vue';
 import type { FaseId } from '@/types/fases';
 import type { Option } from '@/types/comp-fields';
 import FieldComp from '@/components/form/FieldComp.vue';
-import type { LeagueComputedFase } from '@/types/leaguesComputed';
-import DataTableComp from '@/components/ui/DataTableComp.vue';
+import type { LeagueComputedFase, LeagueComputedGroup } from '@/types/leaguesComputed';
 import RankComp from '@/components/stats/RankComp.vue';
 
 interface Filters {
-  faseId: FaseId | undefined;
+  faseId: FaseId | '';
+  groupIdx: string;
 }
 const { t } = useI18n();
 
-const { fases, getSponsor, getRank } = useLeague();
+const { fases, getGroups, getRank } = useLeague();
 
 const filters = reactive<Filters>({
-  faseId: undefined,
+  faseId: '',
+  groupIdx: '0',
 });
 
 const fasesOptions = computed<Option[]>(() =>
   Array.isArray(fases.value)
     ? [
-        { text: t('globals.all'), value: '' },
+        ...(fases.value.length > 1 ? [{ text: t('globals.all'), value: '' }] : []),
         ...fases.value.map(
           (item: LeagueComputedFase) => ({ text: item.title, value: item.faseId }) as Option,
         ),
@@ -35,12 +36,29 @@ const fasesOptions = computed<Option[]>(() =>
 watch(
   fasesOptions,
   (val: Option[]) => {
-    filters.faseId = val?.length === 1 ? (val[0].value as string) : undefined;
+    filters.faseId = val.length ? (val[val.length - 1].value as FaseId) : '';
+  },
+  { immediate: true },
+);
+const groupOptions = computed<Option[]>(() => {
+  return filters.faseId
+    ? (getGroups(filters.faseId) as LeagueComputedGroup[]).map(
+        (item: LeagueComputedGroup, idx: number) => ({
+          text: item.title,
+          value: idx.toString(),
+        }),
+      )
+    : [];
+});
+watch(
+  groupOptions,
+  () => {
+    filters.groupIdx = '0';
   },
   { immediate: true },
 );
 
-const teams = computed(() => getRank(filters.faseId));
+const teams = computed(() => getRank(filters.faseId, Number(filters.groupIdx)));
 </script>
 
 <template>
@@ -52,7 +70,14 @@ const teams = computed(() => getRank(filters.faseId));
         <SelectComp
           v-model="filters.faseId"
           :options="fasesOptions"
-          :disabled="fasesOptions.length === 1"
+          :disabled="fasesOptions.length < 2"
+        />
+      </FieldComp>
+      <FieldComp :label="$t('globals.group')" class="col">
+        <SelectComp
+          v-model="filters.groupIdx"
+          :options="groupOptions"
+          :disabled="groupOptions.length < 2"
         />
       </FieldComp>
     </div>

@@ -5,6 +5,7 @@ import LeagueView from '@/views/LeagueView.vue';
 import RankView from '@/views/league/RankView.vue';
 import TeamsView from '@/views/teams/ListView.vue';
 import GamesView from '@/views/games/ListView.vue';
+import GameView from '@/views/games/ItemView.vue';
 export default [
   {
     path: '/',
@@ -36,6 +37,11 @@ export default [
             path: 'games',
             name: 'league-games',
             component: GamesView,
+          },
+          {
+            path: 'game/:gameId',
+            name: 'league-game',
+            component: GameView,
           },
           {
             path: 'teams',

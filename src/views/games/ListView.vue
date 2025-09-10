@@ -1,37 +1,38 @@
 <script lang="ts" setup>
 import useLeague from '@/composables/useLeague';
 
-import type { Game } from '@/types/games';
 import { computed, reactive, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import SelectComp from '@/components/form/SelectComp.vue';
 import type { FaseId } from '@/types/fases';
 import type { Option } from '@/types/comp-fields';
 import FieldComp from '@/components/form/FieldComp.vue';
-import type { LeagueComputedFase } from '@/types/leaguesComputed';
+import type { LeagueComputedFase, LeagueComputedGroup } from '@/types/leaguesComputed';
+import type { GameComputed } from '@/types/gamesComputed';
+import GamesList from '@/components/games/ListView.vue';
 
 interface Filters {
-  faseId: FaseId | undefined;
+  faseId: FaseId | '';
+  groupIdx: string;
 }
 const { t } = useI18n();
 
-const { leagueComputed, games, getTeamSponsor } = useLeague();
+const { computedGames, fases, getGroups, getTeamSponsor } = useLeague();
 
 const filters = reactive<Filters>({
-  faseId: undefined,
+  faseId: '',
+  groupIdx: '0',
 });
 
-const gamesList = computed<Game[]>(() =>
-  Array.isArray(games?.value)
-    ? games.value.filter((item) => !filters.faseId || item.faseId === filters.faseId)
-    : [],
+const games = computed<GameComputed[]>(() =>
+  Array.isArray(computedGames?.value) ? computedGames.value : [],
 );
 
 const fasesOptions = computed<Option[]>(() =>
-  Array.isArray(leagueComputed?.value?.fases)
+  Array.isArray(fases.value)
     ? [
-        { text: t('globals.all'), value: '' },
-        ...leagueComputed.value.fases.map(
+        ...(fases.value.length > 1 ? [{ text: t('globals.all'), value: '' }] : []),
+        ...fases.value.map(
           (item: LeagueComputedFase) => ({ text: item.title, value: item.faseId }) as Option,
         ),
       ]
@@ -40,7 +41,24 @@ const fasesOptions = computed<Option[]>(() =>
 watch(
   fasesOptions,
   (val: Option[]) => {
-    filters.faseId = val?.length === 1 ? (val[0].value as string) : undefined;
+    filters.faseId = val.length ? (val[val.length - 1].value as FaseId) : '';
+  },
+  { immediate: true },
+);
+const groupOptions = computed<Option[]>(() => {
+  return filters.faseId
+    ? (getGroups(filters.faseId) as LeagueComputedGroup[]).map(
+        (item: LeagueComputedGroup, idx: number) => ({
+          text: item.title,
+          value: idx.toString(),
+        }),
+      )
+    : [];
+});
+watch(
+  groupOptions,
+  () => {
+    filters.groupIdx = '0';
   },
   { immediate: true },
 );
@@ -59,14 +77,6 @@ watch(
         />
       </FieldComp>
     </div>
-    <ul class="list-group list-group-flush">
-      <template v-for="item in gamesList" :key="item.id">
-        <li class="list-group-item hstack gap-2">
-          <strong>{{ getTeamSponsor(item.team1).title }} </strong>
-          <span>&times;</span>
-          <strong>{{ getTeamSponsor(item.team2).title }} </strong>
-        </li>
-      </template>
-    </ul>
+    <GamesList :items="games" />
   </section>
 </template>

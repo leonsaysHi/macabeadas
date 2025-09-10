@@ -1,11 +1,12 @@
 import type { FaseId } from './fases';
 import type { LeagueId, Sport } from './leagues';
 import type { SponsorId } from './sponsors';
-import type { Last5, TeamId, TeamPlayer } from './teams';
+import type { Last5, Team, TeamId, TeamPlayer } from './teams';
 
 // Computed League
 export interface LeagueComputed {
   leagueId: LeagueId;
+  teams: Team[];
   fases: LeagueComputedFase[];
 }
 // ...Fase / Group

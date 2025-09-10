@@ -16,13 +16,13 @@
 */
 import { computed } from 'vue';
 import { format, formatSince } from '@/utils/datetimeFormat.js';
-import { add, isAfter, parseISO, isDate } from 'date-fns';
+import { add, isAfter } from 'date-fns';
 
 import type { DateStyle, TimeStyle } from '@/utils/datetimeFormat';
 import ValueOutput from './ValueOutput.vue';
 
 interface IProps {
-  value: string | null | undefined;
+  value: Date | undefined;
   dateStyle?: DateStyle;
   timeStyle?: TimeStyle;
   timeOnly?: boolean;
@@ -40,15 +40,8 @@ const props = withDefaults(defineProps<IProps>(), {
   noValueClass: 'text-body-secondary fw-normal',
 });
 
-const dateObj = computed(() => {
-  return isDate(props.value)
-    ? props.value
-    : typeof props.value === 'string'
-      ? parseISO(props.value.toString())
-      : undefined;
-});
 const formattedString = computed(() => {
-  const date = dateObj.value;
+  const date = props.value;
   if (!date) {
     return '';
   }

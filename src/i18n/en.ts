@@ -32,6 +32,7 @@ const en = {
     name: 'Name',
     noData: 'No data',
     number: 'Number|Numbers',
+    order: 'Order',
     player: 'Player|Players',
     rank: 'Rank',
     role: 'Role|Roles',
