@@ -1,7 +1,9 @@
 <template>
-  <DataTableComp :fields="fields" :items="props.players">
-    <template #row.playerId="{ value }">
-      {{ getPlayer(value)?.fname1 }} {{ getPlayer(value)?.lname1 }}
+  <DataTableComp :fields="fields" :items="items">
+    <template #row.playerId="{ value, item }">
+      <RouterLink :to="item.to"
+        >{{ getPlayer(value)?.fname1 }} {{ getPlayer(value)?.lname1 }}</RouterLink
+      >
     </template>
     <template #row.teamId="{ value }">
       <div class="hstack gap-2">
@@ -20,6 +22,8 @@ import type { TeamId } from '@/types/teams';
 import ImageComp from '../form/ImageComp.vue';
 import type { PlayerId } from '@/types/players';
 import type { TableField } from '@/types/comp-datatable';
+import { computed } from 'vue';
+import { RouterLink } from 'vue-router';
 
 export interface StatsPlayer {
   playerId: PlayerId;
@@ -35,7 +39,7 @@ interface IProps {
 const { t } = useI18n();
 const props = withDefaults(defineProps<IProps>(), {});
 
-const { getTeamSponsor, getPlayer } = useLeague();
+const { leagueId, getTeamSponsor, getPlayer } = useLeague();
 
 const fields: TableField[] = [
   { key: 'teamId', label: t('globals.team') },
@@ -48,6 +52,13 @@ const fields: TableField[] = [
     formatter: (value, item) => Number(item.stats.gp),
   },
 ];
+
+const items = computed<(StatsPlayer & { to: object })[]>(() =>
+  props.players.map((item: StatsPlayer) => ({
+    to: { name: 'league-player', params: { leagueId, playerId: item.playerId } },
+    ...item,
+  })),
+);
 </script>
 
 <style scoped lang="scss"></style>

@@ -66,12 +66,15 @@ watch(
   { immediate: true },
 );
 
-const statusesOptions = (['none', 'live', 'finished'] as GameStatus[]).map(
-  (value: GameStatus): Option => ({
-    text: t(`globals.statuses.${value}`),
-    value,
-  }),
-);
+const statusesOptions = [
+  { text: t('globals.all'), value: '' },
+  ...(['none', 'live', 'finished'] as GameStatus[]).map(
+    (value: GameStatus): Option => ({
+      text: t(`globals.statuses.${value}`),
+      value,
+    }),
+  ),
+];
 
 const games = computed<GameComputed[]>(() =>
   Array.isArray(gamesComputed?.value)
@@ -112,6 +115,6 @@ const games = computed<GameComputed[]>(() =>
         />
       </FieldComp>
     </div>
-    <GamesList :items="games" />
+    <GamesList :games="games" />
   </section>
 </template>

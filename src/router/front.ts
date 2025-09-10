@@ -3,8 +3,10 @@ import MultiView from '@/views/MultiView.vue';
 import LeagueData from '@/views/LeagueData.vue';
 import LeagueView from '@/views/LeagueView.vue';
 import RankView from '@/views/league/RankView.vue';
+import PlayerView from '@/views/players/ItemView.vue';
 import StatsView from '@/views/league/StatsView.vue';
 import TeamsView from '@/views/teams/ListView.vue';
+import TeamView from '@/views/teams/ItemView.vue';
 import GamesView from '@/views/games/ListView.vue';
 import GameView from '@/views/games/ItemView.vue';
 export default [
@@ -40,6 +42,11 @@ export default [
             component: StatsView,
           },
           {
+            path: 'player/:playerId',
+            name: 'league-player',
+            component: PlayerView,
+          },
+          {
             path: 'games',
             name: 'league-games',
             component: GamesView,
@@ -53,6 +60,11 @@ export default [
             path: 'teams',
             name: 'league-teams',
             component: TeamsView,
+          },
+          {
+            path: 'team/:teamId',
+            name: 'league-team',
+            component: TeamView,
           },
         ],
       },

@@ -1,5 +1,5 @@
 <template>
-  <DataTableComp :fields="fields" :items="props.teams">
+  <DataTableComp :fields="fields" :items="items">
     <template #row.teamId="{ item }">
       <div class="hstack gap-2">
         <ImageComp :src="getSponsor(item.sponsorId)?.logo" :width="35" />
@@ -7,7 +7,7 @@
           class="px-2 align-self-stretch"
           :style="`background-color: ${getSponsor(item.sponsorId)?.color};`"
         ></span>
-        {{ getSponsor(item.sponsorId)?.title }}
+        <RouterLink :to="item.to">{{ getSponsor(item.sponsorId)?.title }}</RouterLink>
       </div>
     </template>
   </DataTableComp>
@@ -22,6 +22,8 @@ import type { SponsorId } from '@/types/sponsors';
 import type { TeamId } from '@/types/teams';
 import ImageComp from '../form/ImageComp.vue';
 import type { TableField } from '@/types/comp-datatable';
+import { computed } from 'vue';
+import { RouterLink } from 'vue-router';
 
 export interface RankTeam {
   teamId: TeamId;
@@ -36,7 +38,7 @@ interface IProps {
 const { t } = useI18n();
 const props = withDefaults(defineProps<IProps>(), {});
 
-const { getSponsor } = useLeague();
+const { leagueId, getSponsor } = useLeague();
 
 const fields: TableField[] = [
   { key: 'pos', label: t('statistics.pos'), formatter: (value, item) => item.stats.pos },
@@ -44,6 +46,13 @@ const fields: TableField[] = [
   { key: 'gp', label: t('statistics.gp'), formatter: (value, item) => item.stats.gp },
   { key: 'w', label: t('statistics.w'), formatter: (value, item) => item.stats.w },
 ];
+
+const items = computed<(RankTeam & { to: object })[]>(() =>
+  props.teams.map((item: RankTeam) => ({
+    to: { name: 'league-team', params: { leagueId, teamId: item.teamId } },
+    ...item,
+  })),
+);
 </script>
 
 <style scoped lang="scss"></style>

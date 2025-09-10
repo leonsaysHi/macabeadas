@@ -258,7 +258,6 @@ export default function useLeagueAdmin() {
     const scoreFinal2 = scores2.reduce((tot: number, p: number) => tot + p, 0);
     const facilityId = courtId;
     return {
-      to: { name: 'league-game', params: { gameId } },
       gameId: gameId as GameId,
       faseId,
       groupIdx,

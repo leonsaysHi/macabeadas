@@ -51,7 +51,6 @@ export interface GameComputed {
   gameId: GameId;
   faseId: FaseId;
   groupIdx: number;
-  to: object;
   datetime: Date;
   status: GameStatus;
   team1: { teamId: TeamId; sponsorId: SponsorId };

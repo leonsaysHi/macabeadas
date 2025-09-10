@@ -4,7 +4,7 @@
       <div class="list-group-item text-center text-body-secondary">No games.</div>
     </template>
     <template v-else>
-      <template v-for="item in props.items" :key="item.id">
+      <template v-for="item in items" :key="item.id">
         <RouterLink class="hstack gap-2 list-group-item list-group-item-action lh-1" :to="item.to">
           <div class="team vstack gap-1 align-items-center">
             <ImageComp :src="getSponsor(item.team1.sponsorId)?.logo" :width="45" />
@@ -89,14 +89,22 @@ import DateTimeFormat from '../ui/DateTimeFormat.vue';
 import useLeague from '@/composables/useLeague';
 import ImageComp from '../form/ImageComp.vue';
 import type { GameComputed } from '@/types/leaguesComputed';
+import { computed } from 'vue';
 const { t } = useI18n();
 
-const { getSponsor } = useLeague();
+const { leagueId, getSponsor } = useLeague();
 
 interface IProps {
-  items: GameComputed[];
+  games: GameComputed[];
 }
 const props = withDefaults(defineProps<IProps>(), {});
+
+const items = computed<(GameComputed & { to: object })[]>(() =>
+  props.games.map((item: GameComputed) => ({
+    to: { name: 'league-game', params: { leagueId, gameId: item.gameId } },
+    ...item,
+  })),
+);
 </script>
 <style lang="scss" scoped>
 .team {
