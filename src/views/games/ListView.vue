@@ -17,24 +17,24 @@ import GamesList from '@/components/games/ListView.vue';
 import type { GameStatus } from '@/types/games';
 
 interface Filters {
-  faseId: FaseId | '';
+  faseId: FaseId | 'all';
   groupIdx: string;
-  status: GameStatus | '';
+  status: GameStatus | 'all';
 }
 const { t } = useI18n();
 
 const { gamesComputed, fases, getGroups } = useLeague();
 
 const filters = reactive<Filters>({
-  faseId: '',
+  faseId: 'all',
   groupIdx: '0',
-  status: '',
+  status: 'all',
 });
 
 const fasesOptions = computed<Option[]>(() =>
   Array.isArray(fases.value)
     ? [
-        ...(fases.value.length > 1 ? [{ text: t('globals.all'), value: '' }] : []),
+        ...(fases.value.length > 1 ? [{ text: t('globals.all'), value: 'all' }] : []),
         ...fases.value.map(
           (item: LeagueComputedFase) => ({ text: item.title, value: item.faseId }) as Option,
         ),
@@ -49,13 +49,12 @@ watch(
   { immediate: true },
 );
 const groupOptions = computed<Option[]>(() => {
-  return filters.faseId
-    ? (getGroups(filters.faseId) as LeagueComputedGroup[]).map(
-        (item: LeagueComputedGroup, idx: number) => ({
-          text: item.title,
-          value: idx.toString(),
-        }),
-      )
+  const groups = getGroups(filters.faseId);
+  return filters.faseId && Array.isArray(groups)
+    ? groups.map((item: LeagueComputedGroup, idx: number) => ({
+        text: item.title,
+        value: idx.toString(),
+      }))
     : [];
 });
 watch(
@@ -67,7 +66,7 @@ watch(
 );
 
 const statusesOptions = [
-  { text: t('globals.all'), value: '' },
+  { text: t('globals.all'), value: 'all' },
   ...(['none', 'live', 'finished'] as GameStatus[]).map(
     (value: GameStatus): Option => ({
       text: t(`globals.statuses.${value}`),
@@ -80,9 +79,9 @@ const games = computed<GameComputed[]>(() =>
   Array.isArray(gamesComputed?.value)
     ? gamesComputed.value.filter(
         ({ faseId, groupIdx, status }: GameComputed) =>
-          (!filters.faseId ||
+          (filters.faseId === 'all' ||
             (filters.faseId === faseId && Number(filters.groupIdx) === groupIdx)) &&
-          (!filters.status || filters.status === status),
+          (filters.status === 'all' || filters.status === status),
       )
     : [],
 );
@@ -108,11 +107,7 @@ const games = computed<GameComputed[]>(() =>
         />
       </FieldComp>
       <FieldComp :label="$t('globals.status')" class="col">
-        <SelectComp
-          v-model="filters.status"
-          :options="statusesOptions"
-          :disabled="groupOptions.length < 2"
-        />
+        <SelectComp v-model="filters.status" :options="statusesOptions" />
       </FieldComp>
     </div>
     <GamesList :games="games" />

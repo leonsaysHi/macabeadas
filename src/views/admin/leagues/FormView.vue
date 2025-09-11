@@ -5,18 +5,16 @@ import FieldComp from '@/components/form/FieldComp.vue';
 import SelectComp from '@/components/form/SelectComp.vue';
 import { defineProps, computed, inject, reactive, ref, watch } from 'vue';
 import ButtonComp from '@/components/ui/ButtonComp.vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import type { League, LeagueId, Sport } from '@/types/leagues';
+import type { League, Sport } from '@/types/leagues';
 import { rootProvided } from '@/types/injections';
 import type { Categorie } from '@/types/categories';
 import useFirestoreRefs from '@/composables/useFirestoreRefs';
 
 const { t } = useI18n();
 const router = useRouter();
-const route = useRoute();
-
-const leagueId = route.params.leagueId as LeagueId
+const { leagueRef } = useFirestoreRefs();
 
 const props = defineProps({
   multiId: String,
@@ -51,7 +49,6 @@ const formData = reactive<League>({
   sport: sports[0],
   fases: [],
 });
-const { leagueRef } as Doc = useFirestoreRefs();
 const item = leagueRef
   ? useDocument(leagueRef, {
       once: true,

@@ -4,7 +4,7 @@ import type { LeagueId } from '@/types/leagues';
 import type { PlayerId } from '@/types/players';
 import type { TeamId } from '@/types/teams';
 import type { UserId } from '@/types/users';
-import { gameConverter } from '@/utils/firestore';
+import { computedGameConverter, gameConverter } from '@/utils/firestore';
 import { collection, doc } from 'firebase/firestore';
 import { useRoute } from 'vue-router';
 import { useFirestore } from 'vuefire';
@@ -42,7 +42,9 @@ export default function useFirestoreRefs() {
   const computedPlayersColRef = collection(leagueRef, 'computed-players');
   const getComputedPlayerRef = (playerId: PlayerId) => doc(computedPlayersColRef, playerId);
   // Computed Games
-  const computedGamesColRef = collection(leagueRef, 'computed-games').withConverter(gameConverter);
+  const computedGamesColRef = collection(leagueRef, 'computed-games').withConverter(
+    computedGameConverter,
+  );
   const computedGameRef = (gameId: GameId) => doc(computedGamesColRef, gameId);
 
   return {

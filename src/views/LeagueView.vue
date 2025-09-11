@@ -5,13 +5,12 @@ const { categorie, multi, leagueId, league } = useLeague();
 </script>
 
 <template>
-  <h4>{{ $t('admin.leagues.title') }}</h4>
   <h2 class="hstack gap-2">
-    <strong>{{ $t(`globals.sports.${league?.sport}`) }}</strong
-    ><small class="text-secondary">{{ categorie?.title }}</small>
-    <small class="badge" :style="`background-color: ${multi?.color}`">{{
-      $t(`globals.genders.${multi?.gender}`)
-    }}</small>
+    <strong>{{ categorie?.title }}</strong
+    ><span class="badge" :style="`background-color: ${multi?.color}`">{{
+      $t(`globals.sports.${league?.sport}`)
+    }}</span>
+    <small class="text-secondary">{{ $t(`globals.genders.${multi?.gender}`) }}</small>
   </h2>
 
   <ul class="nav nav-tabs mb-4">

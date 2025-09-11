@@ -17,9 +17,9 @@ import { useI18n } from 'vue-i18n';
 import ScoresInput from './ScoresInput.vue';
 import type { Court, Facilitie, FacilitieId } from '@/types/facilities';
 import BoxscoreSheets from './BoxscoreSheets.vue';
-import useGame from '@/composables/useGame';
 import { useFirestore } from 'vuefire';
 import useFirestoreRefs from '@/composables/useFirestoreRefs';
+import type { GameComputed } from '@/types/leaguesComputed';
 
 const db = useFirestore();
 const { t } = useI18n();
@@ -32,9 +32,8 @@ const { facilities, courts } = injectedRootData as {
   facilities: Ref<Facilitie[]>;
   courts: Ref<Court[]>;
 };
-const { computedGameRef } = useFirestoreRefs();
+const { gamesColRef: colRef, getGameRef, computedGameRef } = useFirestoreRefs();
 const { fases, games, getTeamTitle, getCourtDetails, getTeam, getComputedGame } = useLeagueAdmin();
-const { colRef, docRef } = useGame();
 
 const isBusy = ref<boolean>(false);
 const gameId: string = route.params.gameId as GameId;
@@ -193,14 +192,14 @@ const handleSave = async (ev: Event) => {
   try {
     isBusy.value = true;
     const batch = writeBatch(db);
-    const _docRef = docRef || doc(colRef);
+    const docRef = gameId ? getGameRef(gameId) : doc(colRef);
 
     // game
-    batch.set(_docRef, formData, { merge: true });
+    batch.set(docRef, formData, { merge: true });
 
     // computed
-    const computedData = getComputedGame({ id: _docRef.id, ...formData });
-    batch.set(computedGameRef(_docRef.id), computedData, { merge: true });
+    const computedData: GameComputed = getComputedGame({ id: docRef.id, ...formData });
+    batch.set(computedGameRef(docRef.id), computedData, { merge: true });
     await batch.commit();
     emit('updated');
     router.push({ name: 'admin-league-games' });
@@ -210,10 +209,14 @@ const handleSave = async (ev: Event) => {
   }
 };
 const handleRemove = async () => {
+  if (!gameId) {
+    return;
+  }
   try {
     isBusy.value = true;
     const batch = writeBatch(db);
     // game
+    const docRef = getGameRef(gameId);
     batch.delete(docRef);
     // computed game
     batch.delete(computedGameRef(docRef.id));

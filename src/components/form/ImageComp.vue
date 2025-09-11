@@ -3,25 +3,25 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed } from 'vue';
 interface IProps {
-  src: string | undefined
-  title?: string
-  width?: number | 'auto'
-  height?: number | 'auto'
-  square?: boolean
+  src: string | undefined;
+  title?: string;
+  width?: number | string;
+  height?: number | string;
+  square?: boolean;
 }
 const props = withDefaults(defineProps<IProps>(), {
   title: '',
   width: 'auto',
   height: 'auto',
-  square: false
-})
+  square: false,
+});
 
-const width = computed(() => (typeof props.width === 'number' ? props.width + 'px' : props.width))
+const width = computed(() => (typeof props.width === 'number' ? props.width + 'px' : props.width));
 const height = computed(() =>
   (typeof props.width === 'number' && props.square) || typeof props.height === 'number'
     ? (props.square ? props.width : props.height) + 'px'
-    : props.height
-)
+    : props.height,
+);
 </script>

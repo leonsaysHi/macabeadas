@@ -1,4 +1,5 @@
 import type { Game } from '@/types/games';
+import type { GameComputed } from '@/types/leaguesComputed';
 import type { Player } from '@/types/players';
 import { isDate, parseISO } from 'date-fns';
 import {
@@ -47,5 +48,21 @@ export const gameConverter = {
       id: snapshot.id,
       datetime: data.datetime?.toDate(),
     } as Game;
+  },
+};
+
+export const computedGameConverter = {
+  toFirestore: (row: GameComputed): DocumentData => {
+    return {
+      ...row,
+      datetime: row.datetime ? dateToFireStore(row.datetime) : undefined,
+    };
+  },
+  fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): GameComputed => {
+    const data = snapshot.data(options)!;
+    return {
+      ...data,
+      datetime: data.datetime?.toDate(),
+    } as GameComputed;
   },
 };

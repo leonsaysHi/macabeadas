@@ -109,7 +109,7 @@ provide(rootProvided, {
       </RouterLink>
     </div>
   </nav>
-  <div class="container-fluid">
+  <div class="container-fluid pt-3">
     <template
       v-if="
         isSetsPending ||
