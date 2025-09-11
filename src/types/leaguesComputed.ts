@@ -8,10 +8,15 @@ import type { CourtId, FacilitieId } from './facilities';
 // Computed League
 export interface LeagueComputed {
   leagueId: LeagueId;
-  teams: Team[];
+  teams: LeagueComputedTeam[];
   fases: LeagueComputedFase[];
 }
-// ...Fase / Group
+// League Teams
+export interface LeagueComputedTeam {
+  teamId: TeamId;
+  sponsorId: SponsorId;
+}
+// League / Fase / Group
 export interface LeagueComputedFase {
   faseId: FaseId;
   title: string;
@@ -19,11 +24,11 @@ export interface LeagueComputedFase {
 }
 export interface LeagueComputedGroup {
   title: string;
-  teams: LeagueComputedTeam[];
-  players: LeagueComputedPlayer[];
+  teams: LeagueComputedTeamStats[];
+  players: LeagueComputedPlayerStats[];
 }
-// ...Team
-export interface LeagueComputedTeam {
+// League / Fase / Team Stats
+export interface LeagueComputedTeamStats {
   teamId: TeamId;
   sponsorId: SponsorId;
   stats: ComputedTeamStats;
@@ -35,8 +40,8 @@ export interface ComputedTeamStats {
   gp: number;
   last5: Last5;
 }
-// ...Player
-export interface LeagueComputedPlayer extends TeamPlayer {
+// League / Fase / Player Stats
+export interface LeagueComputedPlayerStats extends TeamPlayer {
   teamId: TeamId;
   sponsorId: SponsorId;
   stats: ComputedPlayerStats;
@@ -63,11 +68,11 @@ export interface GameComputed {
   courtId: CourtId;
 }
 
-// Computed Team
-export interface TeamComputed extends LeagueComputedTeam {
+// Computed Team: ItemView
+export interface TeamComputed extends LeagueComputedTeamStats {
   leagueId: LeagueId;
 }
-// Computed Player
-export interface PlayerComputed extends LeagueComputedPlayer {
+// Computed Player: ItemView
+export interface PlayerComputed extends LeagueComputedPlayerStats {
   leagueId: LeagueId;
 }

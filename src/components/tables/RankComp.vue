@@ -10,6 +10,7 @@
         <RouterLink :to="item.to">{{ getSponsor(item.sponsorId)?.title }}</RouterLink>
       </div>
     </template>
+    <template #row.last5="{ value }"><LastGames :items="value" /> </template>
   </DataTableComp>
 </template>
 
@@ -24,6 +25,7 @@ import ImageComp from '../form/ImageComp.vue';
 import type { TableField } from '@/types/comp-datatable';
 import { computed } from 'vue';
 import { RouterLink } from 'vue-router';
+import LastGames from './LastGames.vue';
 
 export interface RankTeam {
   teamId: TeamId;
@@ -45,6 +47,7 @@ const fields: TableField[] = [
   { key: 'teamId', label: t('globals.team') },
   { key: 'gp', label: t('statistics.gp'), formatter: (value, item) => item.stats.gp },
   { key: 'w', label: t('statistics.w'), formatter: (value, item) => item.stats.w },
+  { key: 'last5', label: '', formatter: (value, item) => item.stats.last5 },
 ];
 
 const items = computed<(RankTeam & { to: object })[]>(() =>

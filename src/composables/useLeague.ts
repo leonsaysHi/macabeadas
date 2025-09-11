@@ -6,13 +6,14 @@ import type { PlayerId } from '@/types/players';
 import type { League } from '@/types/leagues';
 import type { Multi } from '@/types/multies';
 import type { Categorie } from '@/types/categories';
-import type { TeamId } from '@/types/teams';
+import type { Team, TeamId } from '@/types/teams';
 import type {
   ComputedTeamStats,
   LeagueComputedFase,
   LeagueComputedGroup,
-  LeagueComputedPlayer,
+  LeagueComputedPlayerStats,
   LeagueComputedTeam,
+  LeagueComputedTeamStats,
 } from '@/types/leaguesComputed';
 import type { FaseId } from '@/types/fases';
 import type { RankTeam } from '@/components/stats/RankComp.vue';
@@ -49,7 +50,9 @@ export default function useLeagueComputed() {
   const gamesComputed = injectedLeagueData?.gamesComputed;
   const leagueComputed = injectedLeagueData?.leagueComputed;
 
-  const teams = computed<RankTeam[]>(() => getRank());
+  const teams = computed<LeagueComputedTeam[]>(() =>
+    Array.isArray(leagueComputed?.value?.teams) ? leagueComputed?.value.teams : [],
+  );
   const fases = computed<LeagueComputedFase[]>(() =>
     Array.isArray(leagueComputed?.value?.fases)
       ? leagueComputed.value.fases.reduce((acc: LeagueComputedFase[], fase: LeagueComputedFase) => {
@@ -63,7 +66,8 @@ export default function useLeagueComputed() {
 
   const getPlayer = (id: PlayerId) => players?.value.find((item) => item.id === id);
 
-  const getTeam = (id: TeamId) => teams?.value.find((item) => item.teamId === id);
+  const getTeam = (id: TeamId) =>
+    teams.value.find((item: LeagueComputedTeam) => item.teamId === id);
 
   const getRank = (faseId: FaseId | '' = '', groupIdx: number = -1): RankTeam[] => {
     return Array.isArray(leagueComputed?.value?.fases)
@@ -73,7 +77,7 @@ export default function useLeagueComputed() {
               const groups =
                 groupIdx > -1 ? fase.groups.slice(groupIdx, groupIdx + 1) : fase.groups.slice();
               groups.forEach((group: LeagueComputedGroup) => {
-                group.teams.forEach((team: LeagueComputedTeam) => {
+                group.teams.forEach((team: LeagueComputedTeamStats) => {
                   const tIdx = acc.findIndex((item) => item.teamId === team.teamId);
                   // merging stats here
                   if (acc[tIdx]?.stats) {
@@ -106,7 +110,7 @@ export default function useLeagueComputed() {
             const groups =
               groupIdx > -1 ? fase.groups.slice(groupIdx, groupIdx + 1) : fase.groups.slice();
             groups.forEach((group: LeagueComputedGroup) => {
-              group.players.forEach((player: LeagueComputedPlayer) => {
+              group.players.forEach((player: LeagueComputedPlayerStats) => {
                 const pIdx = acc.findIndex((item) => item.playerId === player.playerId);
                 // merging stats here
                 if (acc[pIdx]?.stats) {

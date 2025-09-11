@@ -3,12 +3,30 @@ import type { ComputedTeamStats } from '@/types/leaguesComputed';
 export default function useTeamStats() {
   const mergeTeamStats = (items: ComputedTeamStats[]): ComputedTeamStats => {
     return items.reduce((acc: ComputedTeamStats, stats: ComputedTeamStats) => {
-      const mergable = ['gp', 'w'];
       Object.keys(stats).forEach((key: string) => {
-        if (mergable.includes(key) && typeof stats[key] === 'number') {
-          acc[key] = typeof acc[key] === 'number' ? acc[key] + stats[key] : stats[key];
-        } else {
-          acc[key] = stats[key];
+        switch (key) {
+          // Addition
+          case 'gp':
+          case 'w':
+            if (typeof stats[key] === 'number') {
+              acc[key] = typeof acc[key] === 'number' ? acc[key] + stats[key] : stats[key];
+            }
+            break;
+          // Concat
+          case 'last5':
+            if (Array.isArray(stats[key])) {
+              acc[key] = Array.isArray(acc[key])
+                ? [
+                    ...(Array.isArray(stats[key]) ? stats[key] : []),
+                    ...(Array.isArray(acc[key]) ? acc[key] : []),
+                  ].slice(-5)
+                : Array.isArray(stats[key])
+                  ? stats[key]
+                  : [];
+            }
+            break;
+          default:
+            acc[key] = stats[key];
         }
       });
       return acc;

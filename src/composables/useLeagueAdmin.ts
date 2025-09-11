@@ -16,8 +16,8 @@ import type {
   LeagueComputed,
   LeagueComputedFase,
   LeagueComputedGroup,
-  LeagueComputedPlayer,
-  LeagueComputedTeam,
+  LeagueComputedPlayerStats,
+  LeagueComputedTeamStats,
   PlayerComputed,
   TeamComputed,
 } from '@/types/leaguesComputed';
@@ -88,10 +88,15 @@ export default function useLeagueAdmin() {
     return players.value.find((item) => item.id === id) as Player;
   };
 
+  // League:
   const getComputedLeague = (): LeagueComputed => {
     // Fases
     return {
       leagueId,
+      teams: teams.value.map(({ id, sponsorId }: Team) => ({
+        teamId: id as TeamId,
+        sponsorId: sponsorId,
+      })),
       fases: fases.value.map((fase: Fase): LeagueComputedFase => {
         // Groups
         return {
@@ -100,7 +105,7 @@ export default function useLeagueAdmin() {
           groups: fase.groups.map((group: FaseGroup): LeagueComputedGroup => {
             // Teams
             const gTeams = group.teams
-              .map((teamId: TeamId): LeagueComputedTeam => {
+              .map((teamId: TeamId): LeagueComputedTeamStats => {
                 const team = teams.value.find(({ id }: Team) => id === teamId) as Team;
                 const teamGames = games.value.filter(({ faseId, status, team1, team2 }) => {
                   return (
@@ -139,46 +144,49 @@ export default function useLeagueAdmin() {
                   teamId: teamId,
                   sponsorId: team.sponsorId,
                   stats,
-                } as LeagueComputedTeam;
+                } as LeagueComputedTeamStats;
               })
-              .toSorted((a: LeagueComputedTeam, b: LeagueComputedTeam) => {
+              .toSorted((a: LeagueComputedTeamStats, b: LeagueComputedTeamStats) => {
                 const { w: w1 } = a.stats;
                 const { w: w2 } = b.stats;
                 return w2 - w1;
               })
-              .map((item: LeagueComputedTeam, idx: number) => {
+              .map((item: LeagueComputedTeamStats, idx: number) => {
                 item.stats.pos = idx + 1;
                 return item;
               });
             // Players
-            const gPlayers = group.teams.reduce((acc: LeagueComputedPlayer[], teamId: TeamId) => {
-              const team = teams.value.find(({ id }: Team) => id === teamId) as Team;
-              const players = team.players.map((item: TeamPlayer): LeagueComputedPlayer => {
-                const playerGames = games.value.filter(
-                  ({ faseId, status, team1, team2, boxscore }: Game) => {
-                    return (
-                      faseId === fase.id &&
-                      status === 'finished' &&
-                      (team1 === teamId || team2 === teamId) &&
-                      boxscore[item.playerId] &&
-                      boxscore[item.playerId].dnp === 0
-                    );
-                  },
-                );
-                const stats: ComputedPlayerStats = {
-                  sport: league.value?.sport as Sport,
-                  gp: playerGames.length,
-                };
-                return {
-                  teamId,
-                  sponsorId: team.sponsorId,
-                  ...item,
-                  stats,
-                };
-              });
-              acc.push(...players);
-              return acc;
-            }, []);
+            const gPlayers = group.teams.reduce(
+              (acc: LeagueComputedPlayerStats[], teamId: TeamId) => {
+                const team = teams.value.find(({ id }: Team) => id === teamId) as Team;
+                const players = team.players.map((item: TeamPlayer): LeagueComputedPlayerStats => {
+                  const playerGames = games.value.filter(
+                    ({ faseId, status, team1, team2, boxscore }: Game) => {
+                      return (
+                        faseId === fase.id &&
+                        status === 'finished' &&
+                        (team1 === teamId || team2 === teamId) &&
+                        boxscore[item.playerId] &&
+                        boxscore[item.playerId].dnp === 0
+                      );
+                    },
+                  );
+                  const stats: ComputedPlayerStats = {
+                    sport: league.value?.sport as Sport,
+                    gp: playerGames.length,
+                  };
+                  return {
+                    teamId,
+                    sponsorId: team.sponsorId,
+                    ...item,
+                    stats,
+                  };
+                });
+                acc.push(...players);
+                return acc;
+              },
+              [],
+            );
             // Result:
             return {
               title: group.title,
@@ -191,6 +199,7 @@ export default function useLeagueAdmin() {
     };
   };
 
+  // Item View:
   const getComputedTeams = (): TeamComputed[] => {
     return teams.value.map((team: Team) => {
       const teamGames = games.value.filter((item) => {
@@ -211,6 +220,7 @@ export default function useLeagueAdmin() {
     });
   };
 
+  // Item View:
   const getComputedPlayers = (): PlayerComputed[] => {
     return teams.value.reduce((acc, team: Team) => {
       return [
