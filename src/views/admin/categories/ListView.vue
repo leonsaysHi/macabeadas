@@ -20,21 +20,23 @@ const fields = [
     key: 'grades',
     label: t('globals.grade', 2),
     sortByFormatted: true,
-    formatter: (value: string | undefined) => (Array.isArray(value) ? value.join(', ') : value),
+    formatter: (value: unknown) => (Array.isArray(value) ? value.join(', ') : value),
   },
   {
     key: 'colorM',
     label: t('globals.genders.m'),
     sortByFormatted: true,
-    formatter: (value: string | undefined, item: Categorie) =>
-      multies?.value.find((m) => m.categorieId === item.id && m.gender === 'm')?.color,
+    formatter: (value: unknown, item: Categorie) =>
+      multies?.value.find((m) => m.categorieId === (item as Categorie).id && m.gender === 'm')
+        ?.color,
   },
   {
     key: 'colorF',
     label: t('globals.genders.f'),
     sortByFormatted: true,
-    formatter: (value: string | undefined, item: Categorie) =>
-      multies?.value.find((m) => m.categorieId === item.id && m.gender === 'f')?.color,
+    formatter: (value: unknown, item: Categorie) =>
+      multies?.value.find((m) => m.categorieId === (item as Categorie).id && m.gender === 'f')
+        ?.color,
   },
   { key: 'actions', label: '' },
 ];

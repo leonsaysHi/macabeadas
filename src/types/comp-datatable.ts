@@ -6,8 +6,8 @@ export interface TableField {
   thClass?: string;
   tfClass?: string;
   sortByFormatted?: boolean;
-  formatter?: (value: string | undefined, item?: object, idx?: number) => unknown;
+  formatter?: (value: string, item: unknown, idx: number) => unknown;
 }
-export interface TableItem {
-  [key: string]: string | boolean | number | object | [];
+export interface TableItem<T> {
+  [key: string]: T;
 }

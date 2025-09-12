@@ -1,3 +1,5 @@
+import type { RouteRecordRaw, RouterViewProps } from 'vue-router';
+
 export default [
   {
     path: '',

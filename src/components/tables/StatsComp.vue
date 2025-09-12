@@ -1,7 +1,7 @@
 <template>
-  <DataTableComp :fields="fields" :items="items">
+  <DataTableComp :fields="fields" :items="props.players">
     <template #row.playerId="{ value, item }">
-      <RouterLink :to="item.to"
+      <RouterLink :to="{ name: 'player', params: { playerId: item.playerId } }"
         >{{ getPlayer(value)?.fname1 }} {{ getPlayer(value)?.lname1 }}</RouterLink
       >
     </template>
@@ -22,7 +22,6 @@ import type { TeamId } from '@/types/teams';
 import ImageComp from '../form/ImageComp.vue';
 import type { PlayerId } from '@/types/players';
 import type { TableField } from '@/types/comp-datatable';
-import { computed } from 'vue';
 import { RouterLink } from 'vue-router';
 import useRootProvided from '@/composables/useRootProvided';
 
@@ -51,16 +50,9 @@ const fields: TableField[] = [
     label: t('statistics.gp'),
     sortable: true,
     sortByFormatted: true,
-    formatter: (value, item) => Number(item?.stats.gp),
+    formatter: (value, item) => Number((item as StatsPlayer)?.stats.gp),
   },
 ];
-
-const items = computed<(StatsPlayer & { to: object })[]>(() =>
-  props.players.map((item: StatsPlayer) => ({
-    to: { name: 'player', params: { playerId: item.playerId } },
-    ...item,
-  })),
-);
 </script>
 
 <style scoped lang="scss"></style>

@@ -81,19 +81,19 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends object">
 import type { Variant } from '@/types/comp-fields';
-import type { TableField, TableItem } from '@/types/comp-datatable';
+import type { TableField } from '@/types/comp-datatable';
 import { compareDesc, isDate } from 'date-fns';
 import { computed, ref } from 'vue';
 
 interface IProps {
   fields: TableField[];
-  items: TableItem[];
+  items: T[];
   limit?: number;
   variant?: Variant | undefined;
   class?: string | undefined;
-  footer?: TableItem | undefined;
+  footer?: T | undefined;
   sortedKey?: string;
   sortedDirection?: 'asc' | 'desc';
   perPage?: number;
@@ -161,12 +161,15 @@ const computedItems = computed(() => {
     ...itemsKeys,
     ...props.fields.filter((field) => !itemsKeys.includes(field.key)).map((f) => f.key),
   ];
-  return results.slice(sliceFirstIdx, sliceEnd).map((row: TableItem, idx: number) => {
-    return computedKeys.reduce((item: TableItem, key: string) => {
-      const field = props.fields.find((field: TableField) => field.key === key);
-      item[key] = field?.formatter ? field.formatter(row[key], row, idx) : row[key];
-      return item;
-    }, {} as TableItem);
+  return results.slice(sliceFirstIdx, sliceEnd).map((row: T, idx: number) => {
+    return computedKeys.reduce(
+      (item: Record<string, unknown>, key: string) => {
+        const field = props.fields.find((field: TableField) => field.key === key);
+        item[key] = field?.formatter ? field.formatter(row[key], row, idx) : row[key];
+        return item;
+      },
+      {} as Record<string, unknown>,
+    );
   });
 });
 const tableClass = computed(() => {

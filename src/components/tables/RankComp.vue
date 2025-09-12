@@ -45,11 +45,15 @@ const { leagueId } = useLeagueComputed();
 const { getSponsor } = useRootProvided();
 
 const fields: TableField[] = [
-  { key: 'pos', label: t('statistics.pos'), formatter: (value, item) => item.stats.pos },
+  {
+    key: 'pos',
+    label: t('statistics.pos'),
+    formatter: (value, item) => (item as RankTeam).stats.pos,
+  },
   { key: 'teamId', label: t('globals.team') },
-  { key: 'gp', label: t('statistics.gp'), formatter: (value, item) => item.stats.gp },
-  { key: 'w', label: t('statistics.w'), formatter: (value, item) => item.stats.w },
-  { key: 'last5', label: '', formatter: (value, item) => item.stats.last5 },
+  { key: 'gp', label: t('statistics.gp'), formatter: (value, item) => (item as RankTeam).stats.gp },
+  { key: 'w', label: t('statistics.w'), formatter: (value, item) => (item as RankTeam).stats.w },
+  { key: 'last5', label: '', formatter: (value, item) => (item as RankTeam).stats.last5 },
 ];
 
 const items = computed<(RankTeam & { to: object })[]>(() =>
