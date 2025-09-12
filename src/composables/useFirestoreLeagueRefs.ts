@@ -4,7 +4,7 @@ import type { LeagueId } from '@/types/leagues';
 import type { PlayerId } from '@/types/players';
 import type { TeamId } from '@/types/teams';
 import { computedGameConverter, gameConverter } from '@/utils/firestore';
-import { collection, collectionGroup, doc, query, where } from 'firebase/firestore';
+import { collection, doc } from 'firebase/firestore';
 import { useRoute } from 'vue-router';
 import { useFirestore } from 'vuefire';
 

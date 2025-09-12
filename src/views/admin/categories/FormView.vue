@@ -10,11 +10,12 @@ import InputComp from '@/components/form/InputComp.vue';
 import SelectComp from '@/components/form/SelectComp.vue';
 import ButtonComp from '@/components/ui/ButtonComp.vue';
 import ConfirmComp from '@/components/ui/ConfirmComp.vue';
-import useFirestoreLeagueRefs from '@/composables/useFirestoreLeagueRefs';
+import useFirestoreRefs from '@/composables/useFirestoreRefs';
 
 const route = useRoute();
 const router = useRouter();
-const { categoriesColRef: catColRef, multiesColRef: mulColRef } = useFirestoreLeagueRefs();
+
+const { categoriesColRef, multiesColRef } = useFirestoreRefs();
 
 const injectedData = inject(rootProvided);
 const categories = injectedData?.categories;
@@ -61,7 +62,7 @@ onMounted(() => {
   }
 });
 
-const catDocRef = categorieId ? doc(catColRef, categorieId) : undefined;
+const catDocRef = categorieId ? doc(categoriesColRef, categorieId) : undefined;
 
 const handleSave = async (ev: Event) => {
   ev.preventDefault();
@@ -69,13 +70,13 @@ const handleSave = async (ev: Event) => {
   try {
     if (catDocRef) {
       await setDoc(catDocRef, formData, { merge: true });
-      await setDoc(doc(mulColRef, multiMascData.id), multiMascData, { merge: true });
-      await setDoc(doc(mulColRef, multiFemData.id), multiFemData, { merge: true });
+      await setDoc(doc(multiesColRef, multiMascData.id), multiMascData, { merge: true });
+      await setDoc(doc(multiesColRef, multiFemData.id), multiFemData, { merge: true });
     } else {
-      const docRef = await addDoc(catColRef, formData);
+      const docRef = await addDoc(categoriesColRef, formData);
       multiMascData.categorieId = multiFemData.categorieId = docRef.id;
-      await addDoc(mulColRef, multiMascData);
-      await addDoc(mulColRef, multiFemData);
+      await addDoc(multiesColRef, multiMascData);
+      await addDoc(multiesColRef, multiFemData);
     }
     router.push({ name: 'admin-categories' });
   } catch (err) {
@@ -88,8 +89,8 @@ const handleRemove = async () => {
   try {
     multies?.value
       .filter((multi) => multi.categorieId === categorieId)
-      .forEach(async (multi) => await deleteDoc(doc(mulColRef, multi.id)));
-    await deleteDoc(doc(catColRef, categorieId));
+      .forEach(async (multi) => await deleteDoc(doc(multiesColRef, multi.id)));
+    await deleteDoc(doc(categoriesColRef, categorieId));
     router.push({ name: 'admin-categories' });
   } catch (error) {
     console.warn('Error removing document:', error);

@@ -1,13 +1,6 @@
 <script lang="ts" setup>
-import { useDocument, useFirestore } from 'vuefire';
-import {
-  addDoc,
-  collection,
-  CollectionReference,
-  deleteDoc,
-  doc,
-  setDoc,
-} from 'firebase/firestore';
+import { useDocument } from 'vuefire';
+import { addDoc, deleteDoc, doc, setDoc } from 'firebase/firestore';
 import { reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import type { User, UserRole } from '@/types/users';
@@ -16,11 +9,10 @@ import InputComp from '@/components/form/InputComp.vue';
 import SelectComp from '@/components/form/SelectComp.vue';
 import ButtonComp from '@/components/ui/ButtonComp.vue';
 import ConfirmComp from '@/components/ui/ConfirmComp.vue';
-import useFirestoreLeagueRefs from '@/composables/useFirestoreLeagueRefs';
+import useFirestoreRefs from '@/composables/useFirestoreRefs';
 
 const route = useRoute();
 const router = useRouter();
-const db = useFirestore();
 
 const roleOptions = [
   {
@@ -34,7 +26,7 @@ const formData = reactive<User>({
   email: '',
   role: roleOptions[0].value,
 });
-const { usersColRef: colRef } = useFirestoreLeagueRefs();
+const { usersColRef: colRef } = useFirestoreRefs();
 const docRef = userId ? doc(colRef, userId) : undefined;
 const item = docRef ? useDocument<User>(docRef, { once: true }) : ref<User | null>(null);
 watch(

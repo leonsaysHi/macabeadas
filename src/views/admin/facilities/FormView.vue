@@ -1,16 +1,7 @@
 <script lang="ts" setup>
 import { useCollection, useDocument, useFirestore } from 'vuefire';
-import {
-  addDoc,
-  collection,
-  CollectionReference,
-  doc,
-  query,
-  setDoc,
-  where,
-  writeBatch,
-} from 'firebase/firestore';
-import { computed, reactive, ref, watch } from 'vue';
+import { addDoc, collection, doc, query, setDoc, where, writeBatch } from 'firebase/firestore';
+import { reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import type { Court, Facilitie, FacilitieId } from '@/types/facilities';
 import FieldComp from '@/components/form/FieldComp.vue';
@@ -21,7 +12,6 @@ import CourtForm from './CourtForm.vue';
 import { useI18n } from 'vue-i18n';
 import DataTableComp from '@/components/ui/DataTableComp.vue';
 import ModalComp from '@/components/ui/ModalComp.vue';
-import useFirestoreLeagueRefs from '@/composables/useFirestoreLeagueRefs';
 import useFirestoreRefs from '@/composables/useFirestoreRefs';
 
 const { t } = useI18n();
@@ -39,7 +29,7 @@ const formData = reactive<Facilitie>({
 });
 const courtsData = ref<Court[]>([]);
 
-const { getFacilitieRef, courtsColRef } = useFirestoreRefs();
+const { getFacilitieRef, facilitiesColRef, courtsColRef } = useFirestoreRefs();
 const docRef = facilitieId ? getFacilitieRef(facilitieId) : undefined;
 const item = useDocument<Facilitie>(docRef, { once: true });
 const courts = facilitieId
@@ -107,27 +97,24 @@ const handleSave = async (ev: Event) => {
   ev.preventDefault();
   isBusy.value = true;
   try {
-    if (docRef.value) {
-      await setDoc(docRef.value, { ...formData }, { merge: true });
-    } else {
-      const docRef = await addDoc(colRef, { ...formData });
-      facilitieId.value = docRef.id;
-    }
+    const _docRef = docRef || doc(facilitiesColRef);
+    await setDoc(_docRef, { ...formData }, { merge: true });
+
     const batch = writeBatch(db);
     courtsData.value.forEach((item) => {
       if (item.id) {
         batch.set(
           doc(courtsColRef, item.id),
-          { ...item, facilitieId: facilitieId.value },
+          { ...item, facilitieId: _docRef.id },
           { merge: true },
         );
       } else {
         const _docRef = doc(collection(db, 'courts'));
-        batch.set(_docRef, { ...item, facilitieId: facilitieId.value });
+        batch.set(_docRef, { ...item, facilitieId: _docRef.id });
       }
     });
     const courtsToDelete = courts.value.filter(
-      (item) => courtsData.value.findIndex((i) => i.docId === item.id) === -1,
+      (item) => courtsData.value.findIndex((i) => i.id === item.id) === -1,
     );
     courtsToDelete.forEach((item) => {
       batch.delete(doc(courtsColRef, item.id));
@@ -143,8 +130,8 @@ const handleSave = async (ev: Event) => {
 const handleRemove = async () => {
   try {
     const batch = writeBatch(db);
-    if (docRef.value) {
-      batch.delete(docRef.value);
+    if (docRef) {
+      batch.delete(docRef);
       courts.value.forEach((item) => {
         if (item.id) {
           batch.delete(doc(courtsColRef, item.id));

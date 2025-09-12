@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import SpinnerComp from '@/components/SpinnerComp.vue';
 import useFirestoreLeagueRefs from '@/composables/useFirestoreLeagueRefs';
 import type { TeamComputed } from '@/types/leaguesComputed';
 import type { TeamId } from '@/types/teams';
