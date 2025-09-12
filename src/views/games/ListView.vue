@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import useLeague from '@/composables/useLeague';
+import useLeagueComputed from '@/composables/useLeagueComputed';
 
 import { computed, reactive, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -23,7 +23,7 @@ interface Filters {
 }
 const { t } = useI18n();
 
-const { gamesComputed, fases, getGroups } = useLeague();
+const { gamesComputed, fases, getGroups } = useLeagueComputed();
 
 const filters = reactive<Filters>({
   faseId: 'all',

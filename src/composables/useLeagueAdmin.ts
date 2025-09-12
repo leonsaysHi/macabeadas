@@ -1,14 +1,8 @@
-import type { Categorie } from '@/types/categories';
-import type { CourtDetails, CourtId } from '@/types/facilities';
+import type { FacilitieId } from '@/types/facilities';
 import type { Fase, FaseGroup, FaseId } from '@/types/fases';
 import type { Game, GameId } from '@/types/games';
-import {
-  leagueAdminProvided,
-  rootProvided,
-  type LeagueAdminInjections,
-  type RootInjections,
-} from '@/types/injections';
-import type { League, Sport } from '@/types/leagues';
+import { leagueAdminProvided, rootProvided, type LeagueAdminInjections } from '@/types/injections';
+import type { League, LeagueDetails, Sport } from '@/types/leagues';
 import type {
   ComputedPlayerStats,
   ComputedTeamStats,
@@ -21,15 +15,15 @@ import type {
   PlayerComputed,
   TeamComputed,
 } from '@/types/leaguesComputed';
-import type { Multi } from '@/types/multies';
-import type { Player, PlayerId } from '@/types/players';
-import type { Sponsor, SponsorId } from '@/types/sponsors';
+import type { SponsorId } from '@/types/sponsors';
 import type { Last5, Team, TeamId, TeamPlayer } from '@/types/teams';
 import { compareDesc } from 'date-fns';
-import { computed, inject } from 'vue';
+import { inject } from 'vue';
 import { useRoute } from 'vue-router';
+import useRootProvided from './useRootProvided';
 export default function useLeagueAdmin() {
   const route = useRoute();
+  const { getCourtDetails, getPlayer, getSponsor, getLeagueDetails, getLeague } = useRootProvided();
   const leagueId = route.params.leagueId as string;
 
   const injectedRootData = inject(rootProvided);
@@ -39,25 +33,11 @@ export default function useLeagueAdmin() {
     console.warn('Should be called within a league. !!');
   }
 
-  const { sponsors, facilities, courts, players, categories, multies, leagues } =
-    injectedRootData as RootInjections;
   const { games, teams, fases } = injectedLeagueData as LeagueAdminInjections;
 
-  const league = computed<League | undefined>(() =>
-    leagues?.value.find((item) => item.id === leagueId),
-  );
-  const multi = computed<Multi | undefined>(() =>
-    multies?.value.find((item) => league.value?.multiId === item.id),
-  );
-  const categorie = computed<Categorie | undefined>(() =>
-    categories?.value.find((item) => multi.value?.categorieId === item.id),
-  );
+  const league: League = getLeague(leagueId);
+  const leagueDetails: LeagueDetails = getLeagueDetails(leagueId);
 
-  const getSponsor = (id: SponsorId | undefined): Sponsor | undefined => {
-    return id && Array.isArray(sponsors.value)
-      ? sponsors.value.find((item) => item.id === id)
-      : undefined;
-  };
   const getTeam = (id: TeamId | undefined): Team | undefined => {
     return id && Array.isArray(teams.value)
       ? teams.value.find((item) => item.id === id)
@@ -70,22 +50,6 @@ export default function useLeagueAdmin() {
   const getTeamColor = (id: TeamId): string | number | undefined => {
     const sponsor = getSponsor(getTeam(id)?.sponsorId);
     return sponsor?.color;
-  };
-  const getCourtDetails = (id: CourtId): CourtDetails | undefined => {
-    const court =
-      id && Array.isArray(courts.value) ? courts.value.find((item) => item.id === id) : undefined;
-    const facilitie =
-      court?.facilitieId && Array.isArray(facilities.value)
-        ? facilities.value.find((item) => item.id === court?.facilitieId)
-        : undefined;
-    return {
-      ...facilitie,
-      courtTitle: court?.title as string,
-    } as CourtDetails;
-  };
-
-  const getPlayer = (id: PlayerId): Player => {
-    return players.value.find((item) => item.id === id) as Player;
   };
 
   // League:
@@ -121,7 +85,7 @@ export default function useLeagueAdmin() {
                   );
                 });
                 const stats: ComputedTeamStats = {
-                  sport: league.value?.sport as Sport,
+                  sport: leagueDetails?.sport as Sport,
                   pos: 0,
                   gp: teamGames.length,
                   w: teamWins.length,
@@ -172,7 +136,7 @@ export default function useLeagueAdmin() {
                     },
                   );
                   const stats: ComputedPlayerStats = {
-                    sport: league.value?.sport as Sport,
+                    sport: leagueDetails?.sport as Sport,
                     gp: playerGames.length,
                   };
                   return {
@@ -210,7 +174,7 @@ export default function useLeagueAdmin() {
         teamId: team.id as TeamId,
         sponsorId: team.sponsorId,
         stats: {
-          sport: league.value?.sport as Sport,
+          sport: leagueDetails?.sport as Sport,
           gp: teamGames.length,
           pos: 0,
           w: 0,
@@ -240,7 +204,7 @@ export default function useLeagueAdmin() {
             sponsorId: team.sponsorId,
             ...item,
             stats: {
-              sport: league.value?.sport as Sport,
+              sport: leagueDetails?.sport as Sport,
               gp: playerGames.length,
             },
           };
@@ -266,7 +230,7 @@ export default function useLeagueAdmin() {
       ?.groups.findIndex((group: FaseGroup) => group.teams.includes(teamId1)) as number;
     const scoreFinal1 = scores1.reduce((tot: number, p: number) => tot + p, 0);
     const scoreFinal2 = scores2.reduce((tot: number, p: number) => tot + p, 0);
-    const facilityId = courtId;
+    const facilitieId = getCourtDetails(courtId)?.facilitieId as FacilitieId;
     return {
       gameId: gameId as GameId,
       faseId,
@@ -279,17 +243,15 @@ export default function useLeagueAdmin() {
       scores2,
       scoreFinal1,
       scoreFinal2,
-      facilityId,
+      facilitieId,
       courtId,
     };
   };
 
   return {
     leagueId,
-    categorie,
-    multi,
     league,
-
+    leagueDetails,
     teams,
     games,
     fases,

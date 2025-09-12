@@ -10,11 +10,11 @@ import { useI18n } from 'vue-i18n';
 import type { League, Sport } from '@/types/leagues';
 import { rootProvided } from '@/types/injections';
 import type { Categorie } from '@/types/categories';
-import useFirestoreRefs from '@/composables/useFirestoreRefs';
+import useFirestoreLeagueRefs from '@/composables/useFirestoreLeagueRefs';
 
 const { t } = useI18n();
 const router = useRouter();
-const { leagueRef } = useFirestoreRefs();
+const { leagueRef } = useFirestoreLeagueRefs();
 
 const props = defineProps({
   multiId: String,

@@ -64,7 +64,7 @@ export interface GameComputed {
   scores2: number[];
   scoreFinal1: number;
   scoreFinal2: number;
-  facilityId: FacilitieId;
+  facilitieId: FacilitieId;
   courtId: CourtId;
 }
 

@@ -3,7 +3,7 @@ import { useRoute, useRouter, RouterView } from 'vue-router';
 import SpinnerComp from '@/components/SpinnerComp.vue';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { useFirebaseAuth, useCurrentUser, useFirestore, useCollection } from 'vuefire';
-import { collection, collectionGroup, doc } from 'firebase/firestore';
+import { collection } from 'firebase/firestore';
 import { computed, provide } from 'vue';
 import type { User } from '@/types/users';
 import type { Player } from '@/types/players';

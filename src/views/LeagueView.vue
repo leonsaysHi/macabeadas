@@ -1,16 +1,16 @@
 <script lang="ts" setup>
-import useLeague from '@/composables/useLeague';
+import useLeagueComputed from '@/composables/useLeagueComputed';
 
-const { categorie, multi, leagueId, league } = useLeague();
+const { leagueId, leagueDetails } = useLeagueComputed();
 </script>
 
 <template>
   <h2 class="hstack gap-2">
-    <strong>{{ categorie?.title }}</strong
-    ><span class="badge" :style="`background-color: ${multi?.color}`">{{
-      $t(`globals.sports.${league?.sport}`)
+    <strong>{{ leagueDetails.categorie }}</strong
+    ><span class="badge" :style="`background-color: ${leagueDetails.color}`">{{
+      $t(`globals.sports.${leagueDetails.sport}`)
     }}</span>
-    <small class="text-secondary">{{ $t(`globals.genders.${multi?.gender}`) }}</small>
+    <small class="text-secondary">{{ $t(`globals.genders.${leagueDetails.gender}`) }}</small>
   </h2>
 
   <ul class="nav nav-tabs mb-4">

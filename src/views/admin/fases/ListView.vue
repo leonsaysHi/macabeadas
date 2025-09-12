@@ -8,13 +8,8 @@ import type { FaseId } from '@/types/fases';
 
 const { t } = useI18n();
 const { league, fases } = useLeagueAdmin();
-
 const orderedFases = computed(() => {
-  console.log(
-    league.value?.fases,
-    fases.value.map((i) => i.id),
-  );
-  return league.value?.fases
+  return league?.fases
     .map((faseId: FaseId) => {
       return fases.value.find((item) => item.id === faseId) || undefined;
     })

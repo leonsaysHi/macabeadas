@@ -10,11 +10,11 @@ import InputComp from '@/components/form/InputComp.vue';
 import SelectComp from '@/components/form/SelectComp.vue';
 import ButtonComp from '@/components/ui/ButtonComp.vue';
 import ConfirmComp from '@/components/ui/ConfirmComp.vue';
-import useFirestoreRefs from '@/composables/useFirestoreRefs';
+import useFirestoreLeagueRefs from '@/composables/useFirestoreLeagueRefs';
 
 const route = useRoute();
 const router = useRouter();
-const { categoriesColRef: catColRef, multiesColRef: mulColRef } = useFirestoreRefs();
+const { categoriesColRef: catColRef, multiesColRef: mulColRef } = useFirestoreLeagueRefs();
 
 const injectedData = inject(rootProvided);
 const categories = injectedData?.categories;

@@ -26,8 +26,8 @@ export const rootProvided = Symbol() as InjectionKey<RootInjections>;
 
 // Front
 export interface LeagueInjections {
-  leagueComputed: Ref<LeagueComputed>;
   gamesComputed: Ref<GameComputed[]>;
+  leagueComputed: Ref<LeagueComputed | undefined>;
 }
 export const leagueProvided = Symbol() as InjectionKey<LeagueInjections>;
 // Admin

@@ -1,5 +1,5 @@
 import type { Game } from '@/types/games';
-import type { GameComputed } from '@/types/leaguesComputed';
+import type { GameComputed, PlayerComputed } from '@/types/leaguesComputed';
 import type { Player } from '@/types/players';
 import { isDate, parseISO } from 'date-fns';
 import {

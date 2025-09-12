@@ -63,10 +63,18 @@
                 <small class="text-body-secondary"
                   ><DateTimeFormat
                     :value="item.datetime"
-                    time-only=""
+                    time-only
                     time-style="short"
                     date-style="short"
                 /></small>
+                <RouterLink
+                  class="samll text-body-secondary"
+                  :to="{
+                    name: 'facility',
+                    params: { facilitieId: item?.courtDetails?.facilitieId || 'test' },
+                  }"
+                  >{{ item?.courtDetails?.title }}</RouterLink
+                >
               </div>
             </template>
           </div>
@@ -86,24 +94,29 @@ import SpinnerComp from '../SpinnerComp.vue';
 import { useI18n } from 'vue-i18n';
 import DateFormat from '../ui/DateFormat.vue';
 import DateTimeFormat from '../ui/DateTimeFormat.vue';
-import useLeague from '@/composables/useLeague';
+import useLeagueComputed from '@/composables/useLeagueComputed';
 import ImageComp from '../form/ImageComp.vue';
 import type { GameComputed } from '@/types/leaguesComputed';
 import { computed } from 'vue';
+import useRootProvided from '@/composables/useRootProvided';
+import type { CourtDetails } from '@/types/facilities';
 const { t } = useI18n();
 
-const { leagueId, getSponsor } = useLeague();
+const { leagueId } = useLeagueComputed();
+const { getSponsor, getCourtDetails } = useRootProvided();
 
 interface IProps {
   games: GameComputed[];
 }
 const props = withDefaults(defineProps<IProps>(), {});
 
-const items = computed<(GameComputed & { to: object })[]>(() =>
-  props.games.map((item: GameComputed) => ({
-    to: { name: 'league-game', params: { leagueId, gameId: item.gameId } },
-    ...item,
-  })),
+const items = computed<(GameComputed & { to: object; courtDetails: CourtDetails | undefined })[]>(
+  () =>
+    props.games.map((item: GameComputed) => ({
+      to: { name: 'league-game', params: { leagueId, gameId: item.gameId } },
+      courtDetails: getCourtDetails(item.courtId),
+      ...item,
+    })),
 );
 </script>
 <style lang="scss" scoped>

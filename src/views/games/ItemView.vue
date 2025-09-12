@@ -33,9 +33,9 @@ const boxscore = computed(() => item.value?.boxscore);
         <hr />
         <DateTimeFormat :value="item?.datetime" />
         <hr />
-        Body: {{ infos }}
-        <hr />
         Court: {{ court }}
+        <hr />
+        Body: {{ infos }}
         <hr />
         Stats: {{ boxscore }}
       </div>

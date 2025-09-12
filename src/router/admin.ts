@@ -68,11 +68,11 @@ export default [
     component: () => import('@/views/admin/leagues/FormView.vue'),
   },
   {
-    path: '',
+    path: 'league',
     component: () => import('@/views/admin/leagues/DataView.vue'),
     children: [
       {
-        path: 'league/:leagueId',
+        path: ':leagueId',
         name: 'admin-league',
         redirect: { name: 'admin-league-teams' },
         component: () => import('@/views/admin/leagues/HomeView.vue'),

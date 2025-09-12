@@ -7,9 +7,9 @@ import type { Team } from '@/types/teams';
 import type { Game } from '@/types/games';
 import type { Fase } from '@/types/fases';
 import type { FirestoreError } from 'firebase/firestore';
-import useFirestoreRefs from '@/composables/useFirestoreRefs';
+import useFirestoreLeagueRefs from '@/composables/useFirestoreLeagueRefs';
 
-const { teamsColRef, gamesColRef, fasesColRef } = useFirestoreRefs();
+const { teamsColRef, gamesColRef, fasesColRef } = useFirestoreLeagueRefs();
 const {
   data: teams,
   pending: isTeamsPending,

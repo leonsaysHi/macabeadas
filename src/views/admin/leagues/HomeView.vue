@@ -9,7 +9,7 @@ import type { Team } from '@/types/teams';
 import type { Game } from '@/types/games';
 import type { Fase } from '@/types/fases';
 import { writeBatch, type FirestoreError } from 'firebase/firestore';
-import useFirestoreRefs from '@/composables/useFirestoreRefs';
+import useFirestoreLeagueRefs from '@/composables/useFirestoreLeagueRefs';
 import type { PlayerComputed, TeamComputed } from '@/types/leaguesComputed';
 
 const db = useFirestore();
@@ -24,7 +24,7 @@ const {
   computedLeagueRef,
   getComputedTeamRef,
   getComputedPlayerRef,
-} = useFirestoreRefs();
+} = useFirestoreLeagueRefs();
 const {
   data: teams,
   pending: isTeamsPending,
@@ -58,7 +58,7 @@ const hasError = computed<{ messages: FirestoreError[] } | null>(() => {
     : null;
 });
 
-const { league, multi, categorie, getComputedLeague, getComputedTeams, getComputedPlayers } =
+const { league, leagueDetails, getComputedLeague, getComputedTeams, getComputedPlayers } =
   useLeagueAdmin();
 
 const handleUpdatedGame = () => {
@@ -86,10 +86,10 @@ const handleUpdatedGame = () => {
 <template>
   <h4>{{ $t('admin.leagues.title') }}</h4>
   <h2 class="hstack gap-2">
-    <strong>{{ $t(`globals.sports.${league?.sport}`) }}</strong
-    ><small class="text-secondary">{{ categorie?.title }}</small>
-    <small class="badge" :style="`background-color: ${multi?.color}`">{{
-      $t(`globals.genders.${multi?.gender}`)
+    <strong>{{ $t(`globals.sports.${leagueDetails?.sport}`) }}</strong
+    ><small class="text-secondary">{{ leagueDetails?.categorie }}</small>
+    <small class="badge" :style="`background-color: ${leagueDetails?.color}`">{{
+      $t(`globals.genders.${leagueDetails?.gender}`)
     }}</small>
   </h2>
   <ul class="nav nav-tabs mb-4">

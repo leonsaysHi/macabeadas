@@ -11,7 +11,7 @@ import ButtonComp from '@/components/ui/ButtonComp.vue';
 import ConfirmComp from '@/components/ui/ConfirmComp.vue';
 import type { Fase, FaseId, FaseType } from '@/types/fases';
 import GroupsForm from './GroupsForm.vue';
-import useFirestoreRefs from '@/composables/useFirestoreRefs';
+import useFirestoreLeagueRefs from '@/composables/useFirestoreLeagueRefs';
 import type { League, LeagueId } from '@/types/leagues';
 
 const route = useRoute();
@@ -42,7 +42,7 @@ const formData = reactive<Fase>({
   type: typeOptions[0].value,
   groups: [],
 });
-const { fasesColRef, getFaseRef } = useFirestoreRefs();
+const { fasesColRef, getFaseRef } = useFirestoreLeagueRefs();
 const docRef = getFaseRef(faseId);
 const item = docRef
   ? useDocument(docRef, {
@@ -61,7 +61,7 @@ watch(
   { immediate: true },
 );
 
-const { leagueRef } = useFirestoreRefs();
+const { leagueRef } = useFirestoreLeagueRefs();
 const league = useDocument(leagueRef, {
   once: true,
 });

@@ -2,12 +2,20 @@
 import SpinnerComp from '@/components/SpinnerComp.vue';
 import { leagueProvided } from '@/types/injections';
 import { computed, provide } from 'vue';
-import useFirestoreRefs from '@/composables/useFirestoreRefs';
+import useFirestoreLeagueRefs from '@/composables/useFirestoreLeagueRefs';
 import { useCollection, useDocument } from 'vuefire';
 import type { FirestoreError } from 'firebase/firestore';
 import type { GameComputed, LeagueComputed } from '@/types/leaguesComputed';
+import { useRoute, useRouter } from 'vue-router';
 
-const { computedLeagueRef, computedGamesColRef } = useFirestoreRefs();
+const route = useRoute();
+const router = useRouter();
+const multiId = route.params.multiId;
+const leagueId = route.params.leagueId;
+if (!leagueId) {
+  router.replace(multiId ? { name: 'multi', params: { multiId } } : { name: 'homme' });
+}
+const { computedLeagueRef, computedGamesColRef } = useFirestoreLeagueRefs();
 const {
   data: gamesComputed,
   pending: isGamesPending,

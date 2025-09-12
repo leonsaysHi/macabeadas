@@ -12,7 +12,7 @@ import {
 } from 'firebase/firestore';
 import { computed, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import type { Court, Facilitie } from '@/types/facilities';
+import type { Court, Facilitie, FacilitieId } from '@/types/facilities';
 import FieldComp from '@/components/form/FieldComp.vue';
 import InputComp from '@/components/form/InputComp.vue';
 import ButtonComp from '@/components/ui/ButtonComp.vue';
@@ -21,6 +21,7 @@ import CourtForm from './CourtForm.vue';
 import { useI18n } from 'vue-i18n';
 import DataTableComp from '@/components/ui/DataTableComp.vue';
 import ModalComp from '@/components/ui/ModalComp.vue';
+import useFirestoreLeagueRefs from '@/composables/useFirestoreLeagueRefs';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -28,7 +29,7 @@ const router = useRouter();
 const db = useFirestore();
 
 const isBusy = ref<boolean>(false);
-const facilitieId = ref<string>(route.params.facilitieId as string);
+const facilitieId = route.params.facilitieId as FacilitieId;
 
 const formData = reactive<Facilitie>({
   title: '',
@@ -37,13 +38,11 @@ const formData = reactive<Facilitie>({
 });
 const courtsData = ref<Court[]>([]);
 
-const colRef = collection(db, 'facilities') as CollectionReference<Facilitie>;
-const courtsColRef = collection(db, 'courts') as CollectionReference<Court>;
-const docRef = computed(() => (facilitieId.value ? doc(colRef, facilitieId.value) : undefined));
-
+const { getFacilitieRef, courtsColRef } = useFirestoreLeagueRefs();
+const docRef = facilitieId ? getFacilitieRef(facilitieId) : undefined);
 const item = useDocument<Facilitie>(docRef, { once: true });
-const courts = facilitieId.value
-  ? useCollection<Court>(query(courtsColRef, where('facilitieId', '==', facilitieId.value)), {
+const courts = facilitieId
+  ? useCollection<Court>(query(courtsColRef, where('facilitieId', '==', facilitieId)), {
       once: true,
     })
   : ref([]);

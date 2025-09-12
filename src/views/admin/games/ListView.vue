@@ -15,7 +15,7 @@ import FieldComp from '@/components/form/FieldComp.vue';
 import type { CourtId } from '@/types/facilities';
 
 interface Filters {
-  faseId: FaseId | undefined;
+  faseId: FaseId | 'all';
 }
 const { t } = useI18n();
 const { games, fases, getTeamTitle, getCourtDetails } = useLeagueAdmin();
@@ -66,17 +66,17 @@ const fields: TableField[] = [
 ];
 
 const filters = reactive<Filters>({
-  faseId: undefined,
+  faseId: 'all',
 });
 
 const filteredItems = computed<Game[]>(() =>
-  games.value.filter((item) => !filters.faseId || item.faseId === filters.faseId),
+  games.value.filter((item) => filters.faseId === 'all' || item.faseId === filters.faseId),
 );
 
 const fasesOptions = computed<Option[]>(() =>
   Array.isArray(fases.value)
     ? [
-        { text: t('globals.all'), value: '' },
+        { text: t('globals.all'), value: 'all' },
         ...fases.value.map((item: Fase) => ({ text: item.title, value: item.id }) as Option),
       ]
     : [],
@@ -84,7 +84,7 @@ const fasesOptions = computed<Option[]>(() =>
 watch(
   fasesOptions,
   (val: Option[]) => {
-    filters.faseId = val?.length === 1 ? (val[0].value as string) : undefined;
+    filters.faseId = val?.length === 1 ? (val[0].value as string) : 'all';
   },
   { immediate: true },
 );

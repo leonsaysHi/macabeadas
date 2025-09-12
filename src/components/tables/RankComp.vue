@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 import DataTableComp from '@/components/ui/DataTableComp.vue';
-import useLeague from '@/composables/useLeague';
+import useLeagueComputed from '@/composables/useLeagueComputed';
 import type { ComputedTeamStats } from '@/types/leaguesComputed';
 import type { SponsorId } from '@/types/sponsors';
 import type { TeamId } from '@/types/teams';
@@ -26,6 +26,7 @@ import type { TableField } from '@/types/comp-datatable';
 import { computed } from 'vue';
 import { RouterLink } from 'vue-router';
 import LastGames from './LastGames.vue';
+import useRootProvided from '@/composables/useRootProvided';
 
 export interface RankTeam {
   teamId: TeamId;
@@ -40,7 +41,8 @@ interface IProps {
 const { t } = useI18n();
 const props = withDefaults(defineProps<IProps>(), {});
 
-const { leagueId, getSponsor } = useLeague();
+const { leagueId } = useLeagueComputed();
+const { getSponsor } = useRootProvided();
 
 const fields: TableField[] = [
   { key: 'pos', label: t('statistics.pos'), formatter: (value, item) => item.stats.pos },

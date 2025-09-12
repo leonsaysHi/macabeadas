@@ -18,7 +18,7 @@ import ScoresInput from './ScoresInput.vue';
 import type { Court, Facilitie, FacilitieId } from '@/types/facilities';
 import BoxscoreSheets from './BoxscoreSheets.vue';
 import { useFirestore } from 'vuefire';
-import useFirestoreRefs from '@/composables/useFirestoreRefs';
+import useFirestoreLeagueRefs from '@/composables/useFirestoreLeagueRefs';
 import type { GameComputed } from '@/types/leaguesComputed';
 
 const db = useFirestore();
@@ -32,7 +32,7 @@ const { facilities, courts } = injectedRootData as {
   facilities: Ref<Facilitie[]>;
   courts: Ref<Court[]>;
 };
-const { gamesColRef: colRef, getGameRef, computedGameRef } = useFirestoreRefs();
+const { gamesColRef: colRef, getGameRef, computedGameRef } = useFirestoreLeagueRefs();
 const { fases, games, getTeamTitle, getCourtDetails, getTeam, getComputedGame } = useLeagueAdmin();
 
 const isBusy = ref<boolean>(false);

@@ -1,13 +1,15 @@
 <script lang="ts" setup>
 import ImageComp from '@/components/form/ImageComp.vue';
-import useLeague from '@/composables/useLeague';
+import useLeagueComputed from '@/composables/useLeagueComputed';
+import useRootProvided from '@/composables/useRootProvided';
 import type { LeagueComputedTeam } from '@/types/leaguesComputed';
 import { computed } from 'vue';
 import { RouterLink } from 'vue-router';
 
-const { leagueId, teams, getSponsor } = useLeague();
+const { leagueId, teamsComputed } = useLeagueComputed();
+const { getSponsor } = useRootProvided();
 const items = computed<(LeagueComputedTeam & { to: object })[]>(() =>
-  teams.value.map((item: LeagueComputedTeam) => ({
+  teamsComputed?.value.map((item: LeagueComputedTeam) => ({
     to: { name: 'league-team', params: { leagueId, teamId: item.teamId } },
     ...item,
   })),

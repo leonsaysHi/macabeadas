@@ -16,7 +16,7 @@ import InputComp from '@/components/form/InputComp.vue';
 import SelectComp from '@/components/form/SelectComp.vue';
 import ButtonComp from '@/components/ui/ButtonComp.vue';
 import ConfirmComp from '@/components/ui/ConfirmComp.vue';
-import useFirestoreRefs from '@/composables/useFirestoreRefs';
+import useFirestoreLeagueRefs from '@/composables/useFirestoreLeagueRefs';
 
 const route = useRoute();
 const router = useRouter();
@@ -34,7 +34,7 @@ const formData = reactive<User>({
   email: '',
   role: roleOptions[0].value,
 });
-const { usersColRef: colRef } = useFirestoreRefs();
+const { usersColRef: colRef } = useFirestoreLeagueRefs();
 const docRef = userId ? doc(colRef, userId) : undefined;
 const item = docRef ? useDocument<User>(docRef, { once: true }) : ref<User | null>(null);
 watch(

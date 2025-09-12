@@ -3,6 +3,7 @@ import MultiView from '@/views/MultiView.vue';
 import LeagueData from '@/views/LeagueData.vue';
 import LeagueView from '@/views/LeagueView.vue';
 import RankView from '@/views/league/RankView.vue';
+import FacilityView from '@/views/facilities/ItemView.vue';
 import PlayerView from '@/views/players/ItemView.vue';
 import StatsView from '@/views/league/StatsView.vue';
 import TeamsView from '@/views/teams/ListView.vue';
@@ -22,13 +23,24 @@ export default [
   },
 
   {
-    path: '',
+    path: 'player/:playerId',
+    name: 'player',
+    component: PlayerView,
+  },
+  {
+    path: 'facility/:facilitieId',
+    name: 'facility',
+    component: FacilityView,
+  },
+
+  {
+    path: 'league',
     component: LeagueData,
     children: [
       {
-        path: '/league/:leagueId',
+        path: ':leagueId',
         name: 'league',
-        redirect: { name: 'league-teams' },
+        redirect: { name: 'league-rank' },
         component: LeagueView,
         children: [
           {
@@ -40,11 +52,6 @@ export default [
             path: 'stats',
             name: 'league-stats',
             component: StatsView,
-          },
-          {
-            path: 'player/:playerId',
-            name: 'league-player',
-            component: PlayerView,
           },
           {
             path: 'games',

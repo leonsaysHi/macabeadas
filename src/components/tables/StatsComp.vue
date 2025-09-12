@@ -7,7 +7,7 @@
     </template>
     <template #row.teamId="{ value }">
       <div class="hstack gap-2">
-        <ImageComp :src="getTeamSponsor(value)?.logo" :width="35" />
+        <ImageComp :src="getSponsor(getTeamComputed(value)?.sponsorId)?.logo" :width="35" />
       </div>
     </template>
   </DataTableComp>
@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 import DataTableComp from '@/components/ui/DataTableComp.vue';
-import useLeague from '@/composables/useLeague';
+import useLeagueComputed from '@/composables/useLeagueComputed';
 import type { ComputedPlayerStats } from '@/types/leaguesComputed';
 import type { TeamId } from '@/types/teams';
 import ImageComp from '../form/ImageComp.vue';
@@ -24,6 +24,7 @@ import type { PlayerId } from '@/types/players';
 import type { TableField } from '@/types/comp-datatable';
 import { computed } from 'vue';
 import { RouterLink } from 'vue-router';
+import useRootProvided from '@/composables/useRootProvided';
 
 export interface StatsPlayer {
   playerId: PlayerId;
@@ -39,7 +40,8 @@ interface IProps {
 const { t } = useI18n();
 const props = withDefaults(defineProps<IProps>(), {});
 
-const { leagueId, getTeamSponsor, getPlayer } = useLeague();
+const { getTeamComputed } = useLeagueComputed();
+const { getPlayer, getSponsor } = useRootProvided();
 
 const fields: TableField[] = [
   { key: 'teamId', label: t('globals.team') },
@@ -49,13 +51,13 @@ const fields: TableField[] = [
     label: t('statistics.gp'),
     sortable: true,
     sortByFormatted: true,
-    formatter: (value, item) => Number(item.stats.gp),
+    formatter: (value, item) => Number(item?.stats.gp),
   },
 ];
 
 const items = computed<(StatsPlayer & { to: object })[]>(() =>
   props.players.map((item: StatsPlayer) => ({
-    to: { name: 'league-player', params: { leagueId, playerId: item.playerId } },
+    to: { name: 'player', params: { playerId: item.playerId } },
     ...item,
   })),
 );

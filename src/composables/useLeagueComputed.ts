@@ -1,11 +1,6 @@
 import { computed, inject } from 'vue';
 import { useRoute } from 'vue-router';
-import { leagueProvided, rootProvided } from '@/types/injections';
-import type { SponsorId } from '@/types/sponsors';
-import type { PlayerId } from '@/types/players';
-import type { League } from '@/types/leagues';
-import type { Multi } from '@/types/multies';
-import type { Categorie } from '@/types/categories';
+import { leagueProvided } from '@/types/injections';
 import type { TeamId } from '@/types/teams';
 import type {
   LeagueComputedFase,
@@ -19,12 +14,14 @@ import useTeamStats from './useTeamStats';
 import usePlayerStats from './usePlayerStats';
 import type { StatsPlayer } from '@/components/tables/StatsComp.vue';
 import type { RankTeam } from '@/components/tables/RankComp.vue';
-import type { CourtDetails, CourtId } from '@/types/facilities';
-
-const { mergeTeamStats } = useTeamStats();
-const { mergePlayerStats } = usePlayerStats();
+import useRootProvided from './useRootProvided';
+import type { LeagueDetails } from '@/types/leagues';
 
 export default function useLeagueComputed() {
+  const { mergeTeamStats } = useTeamStats();
+  const { getLeagueDetails, getCourtDetails } = useRootProvided();
+  const { mergePlayerStats } = usePlayerStats();
+
   const route = useRoute();
   const leagueId = route.params.leagueId as string;
 
@@ -32,29 +29,15 @@ export default function useLeagueComputed() {
     console.warn('Should be called within a league. !!');
   }
 
-  const injectedRootData = inject(rootProvided);
-  const categories = injectedRootData?.categories;
-  const multies = injectedRootData?.multies;
-  const leagues = injectedRootData?.leagues;
-  const players = injectedRootData?.players;
-  const sponsors = injectedRootData?.sponsors;
-  const courts = injectedRootData?.courts;
-  const facilities = injectedRootData?.facilities;
+  const leagueDetails: LeagueDetails = getLeagueDetails(leagueId);
 
-  const league = computed(() => leagues?.value.find((item) => item.id === leagueId) as League);
-  const multi = computed(
-    () => multies?.value.find((item) => item.id === league.value?.multiId) as Multi,
-  );
-  const categorie = computed(
-    () => categories?.value.find((item) => item.id === multi.value?.categorieId) as Categorie,
-  );
-
+  // computed
   const injectedLeagueData = inject(leagueProvided);
   const gamesComputed = injectedLeagueData?.gamesComputed;
   const leagueComputed = injectedLeagueData?.leagueComputed;
 
-  const teams = computed<LeagueComputedTeam[]>(() =>
-    Array.isArray(leagueComputed?.value?.teams) ? leagueComputed?.value.teams : [],
+  const teamsComputed = computed<LeagueComputedTeam[]>(() =>
+    Array.isArray(leagueComputed?.value?.teams) ? leagueComputed.value.teams : [],
   );
   const fases = computed<LeagueComputedFase[]>(() =>
     Array.isArray(leagueComputed?.value?.fases)
@@ -67,23 +50,8 @@ export default function useLeagueComputed() {
   const getGroups = (faseId: FaseId): LeagueComputedGroup[] | undefined =>
     leagueComputed?.value?.fases.find((item) => item.faseId === faseId)?.groups;
 
-  const getCourtDetails = (id: CourtId): CourtDetails | undefined => {
-    const court =
-      id && Array.isArray(courts?.value) ? courts.value.find((item) => item.id === id) : undefined;
-    const facilitie =
-      court?.facilitieId && Array.isArray(facilities?.value)
-        ? facilities.value.find((item) => item.id === court?.facilitieId)
-        : undefined;
-    return {
-      ...facilitie,
-      courtTitle: court?.title as string,
-    } as CourtDetails;
-  };
-
-  const getPlayer = (id: PlayerId) => players?.value.find((item) => item.id === id);
-
-  const getTeam = (id: TeamId) =>
-    teams.value.find((item: LeagueComputedTeam) => item.teamId === id);
+  const getTeamComputed = (id: TeamId): LeagueComputedTeam | undefined =>
+    teamsComputed.value.find((item: LeagueComputedTeam) => item.teamId === id);
 
   const getRank = (faseId: FaseId | '' = '', groupIdx: number = -1): RankTeam[] => {
     return Array.isArray(leagueComputed?.value?.fases)
@@ -145,19 +113,13 @@ export default function useLeagueComputed() {
       : [];
   };
 
-  const getSponsor = (id: SponsorId) => sponsors?.value.find((item) => item.id === id);
-  const getTeamSponsor = (id: TeamId): RankTeam | undefined =>
-    getTeam(id)?.sponsorId ? getSponsor(getTeam(id).sponsorId as SponsorId) : undefined;
-
   return {
-    categorie,
-    multi,
-    league,
+    leagueDetails,
     leagueId,
 
     // League
     leagueComputed,
-    teams,
+    teamsComputed,
     fases,
     getGroups,
     // games
@@ -165,10 +127,7 @@ export default function useLeagueComputed() {
 
     getRank,
     getStats,
-
-    getPlayer,
-    getSponsor,
-    getTeamSponsor,
+    getTeamComputed,
     getCourtDetails,
   };
 }
