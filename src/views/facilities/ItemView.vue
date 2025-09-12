@@ -1,18 +1,29 @@
 <script lang="ts" setup>
 import SpinnerComp from '@/components/SpinnerComp.vue';
+import GamesList from '@/components/games/ListView.vue';
 import useRootProvided from '@/composables/useRootProvided';
-import type { FacilitieId } from '@/types/facilities';
+import type { Categorie, CategorieId } from '@/types/categories';
+import type { FacilitieDetails, Court, CourtId, FacilitieId } from '@/types/facilities';
 import type { GameComputed } from '@/types/leaguesComputed';
+import type { Option } from '@/types/comp-fields';
 import { computedGameConverter } from '@/utils/firestore';
 import { collectionGroup, query, where } from 'firebase/firestore';
-import { computed } from 'vue';
+import { computed, reactive } from 'vue';
 import { useRoute } from 'vue-router';
 import { useCollection, useFirestore } from 'vuefire';
+import FieldComp from '@/components/form/FieldComp.vue';
+import SelectComp from '@/components/form/SelectComp.vue';
+import { useI18n } from 'vue-i18n';
+
+interface Filters {
+  courtId: CourtId | 'all';
+  categorieId: CategorieId | 'all';
+}
 
 const db = useFirestore();
+const { t } = useI18n();
 const route = useRoute();
-const { getFacility } = useRootProvided();
-// const { getFacilityComputedGamesColGroupRef } = useFirestoreRefs();
+const { categories, getFacilityDetails } = useRootProvided();
 
 const facilitieId = route.params.facilitieId as FacilitieId;
 const getFacilityComputedGamesColGroupRef = query(
@@ -20,15 +31,52 @@ const getFacilityComputedGamesColGroupRef = query(
   where('facilitieId', '==', facilitieId),
 );
 
-const { data: computedGames }: { gameComputed: GameComputed } = useCollection(
+const item = computed<FacilitieDetails>(() => getFacilityDetails(facilitieId));
+const isReady = computed(() => item.value);
+
+const { data: computedGames } = useCollection<GameComputed>(
   getFacilityComputedGamesColGroupRef.withConverter(computedGameConverter),
 );
 const upcomingGames = computed(() =>
-  computedGames.value.filter((item: GameComputed) => ['live', 'none'].includes(item.status)),
+  computedGames.value.filter((game: GameComputed) => {
+    return (
+      ['live', 'none'].includes(game.status) &&
+      (filters.courtId === 'all' || filters.courtId === game.courtId) &&
+      (filters.categorieId === 'all' || filters.categorieId === game.categorieId)
+    );
+  }),
 );
 
-const item = computed(() => getFacility(facilitieId));
-const isReady = computed(() => item.value);
+const filters = reactive<Filters>({
+  courtId: 'all',
+  categorieId: 'all',
+});
+const courtOptions = computed<Option[]>(() =>
+  Array.isArray(item.value.courts)
+    ? [
+        ...(item.value.courts.length > 1 ? [{ text: t('globals.all'), value: 'all' }] : []),
+        ...item.value.courts.map(
+          (item: Court): Option => ({
+            text: item.title,
+            value: item.id,
+          }),
+        ),
+      ]
+    : [],
+);
+const categorieOptions = computed<Option[]>(() =>
+  Array.isArray(categories?.value)
+    ? [
+        ...(categories?.value.length > 1 ? [{ text: t('globals.all'), value: 'all' }] : []),
+        ...categories?.value.map(
+          (item: Categorie): Option => ({
+            text: item.title,
+            value: item.id,
+          }),
+        ),
+      ]
+    : [],
+);
 </script>
 
 <template>
@@ -42,7 +90,26 @@ const isReady = computed(() => item.value);
       <h4>{{ item?.title }}</h4>
       {{ item }}
       <hr />
-      {{ upcomingGames }}
+      <div class="hstack justify-content-between gap-3">
+        <h4>{{ $t('globals.game', 2) }}</h4>
+        <div class="hstack gap-3">
+          <FieldComp :label="$t('globals.court', 2)" class="col">
+            <SelectComp
+              v-model="filters.courtId"
+              :options="courtOptions"
+              :disabled="courtOptions.length < 2"
+            />
+          </FieldComp>
+          <FieldComp :label="$t('globals.categorie', 2)" class="col">
+            <SelectComp
+              v-model="filters.categorieId"
+              :options="categorieOptions"
+              :disabled="categorieOptions.length < 2"
+            />
+          </FieldComp>
+        </div>
+      </div>
+      <GamesList :games="upcomingGames" />
     </template>
   </section>
 </template>

@@ -44,7 +44,7 @@ const fasesOptions = computed<Option[]>(() =>
 watch(
   fasesOptions,
   (val: Option[]) => {
-    filters.faseId = val.length ? (val[val.length - 1].value as FaseId) : '';
+    filters.faseId = val.length ? (val[val.length - 1].value as FaseId) : 'all';
   },
   { immediate: true },
 );

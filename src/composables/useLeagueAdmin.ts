@@ -21,6 +21,7 @@ import { compareDesc } from 'date-fns';
 import { inject } from 'vue';
 import { useRoute } from 'vue-router';
 import useRootProvided from './useRootProvided';
+import type { CategorieId } from '@/types/categories';
 export default function useLeagueAdmin() {
   const route = useRoute();
   const { getCourtDetails, getPlayer, getSponsor, getLeagueDetails, getLeague } = useRootProvided();
@@ -232,6 +233,8 @@ export default function useLeagueAdmin() {
     const scoreFinal2 = scores2.reduce((tot: number, p: number) => tot + p, 0);
     const facilitieId = getCourtDetails(courtId)?.facilitieId as FacilitieId;
     return {
+      leagueId,
+      categorieId: leagueDetails.categorieId as CategorieId,
       gameId: gameId as GameId,
       faseId,
       groupIdx,

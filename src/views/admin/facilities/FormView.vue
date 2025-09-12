@@ -22,6 +22,7 @@ import { useI18n } from 'vue-i18n';
 import DataTableComp from '@/components/ui/DataTableComp.vue';
 import ModalComp from '@/components/ui/ModalComp.vue';
 import useFirestoreLeagueRefs from '@/composables/useFirestoreLeagueRefs';
+import useFirestoreRefs from '@/composables/useFirestoreRefs';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -38,8 +39,8 @@ const formData = reactive<Facilitie>({
 });
 const courtsData = ref<Court[]>([]);
 
-const { getFacilitieRef, courtsColRef } = useFirestoreLeagueRefs();
-const docRef = facilitieId ? getFacilitieRef(facilitieId) : undefined);
+const { getFacilitieRef, courtsColRef } = useFirestoreRefs();
+const docRef = facilitieId ? getFacilitieRef(facilitieId) : undefined;
 const item = useDocument<Facilitie>(docRef, { once: true });
 const courts = facilitieId
   ? useCollection<Court>(query(courtsColRef, where('facilitieId', '==', facilitieId)), {

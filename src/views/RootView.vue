@@ -13,18 +13,18 @@ import type { Multi } from '@/types/multies';
 import type { Sponsor } from '@/types/sponsors';
 import type { Player } from '@/types/players';
 import type { Court, Facilitie } from '@/types/facilities';
-import { playerConverter } from '@/utils/firestore';
+import useFirestoreRefs from '@/composables/useFirestoreRefs';
 
-const db = useFirestore();
-const settingsColRef = collection(db, 'settings');
-const categoriesColRef = collection(db, 'categories');
-const multiesColRef = collection(db, 'multies');
-const leaguesColRef = collection(db, 'leagues');
-const sponsorsColRef = collection(db, 'sponsors');
-const playersColRef = collection(db, 'players').withConverter(playerConverter);
-const facilitiesColRef = collection(db, 'facilities');
-const courtsColRef = collection(db, 'courts');
-
+const {
+  settingsColRef,
+  categoriesColRef,
+  multiesColRef,
+  leaguesColRef,
+  sponsorsColRef,
+  playersColRef,
+  facilitiesColRef,
+  courtsColRef,
+} = useFirestoreRefs();
 const {
   data: settingsList,
   pending: isSetsPending,

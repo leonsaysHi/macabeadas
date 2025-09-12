@@ -4,6 +4,7 @@ import DateTimeFormat from '@/components/ui/DateTimeFormat.vue';
 import useGame from '@/composables/useGame';
 import type { Game } from '@/types/games';
 import { computed } from 'vue';
+import { RouterLink } from 'vue-router';
 
 const { isReady, hasError, item, fase, group, court } = useGame();
 const infos = computed(() => {
@@ -33,7 +34,10 @@ const boxscore = computed(() => item.value?.boxscore);
         <hr />
         <DateTimeFormat :value="item?.datetime" />
         <hr />
-        Court: {{ court }}
+        Court:
+        <RouterLink :to="{ name: 'facility', params: { facilitieId: court.facilitieId } }"
+          >{{ court.title }},&nbsp;{{ court.courtTitle }}</RouterLink
+        >
         <hr />
         Body: {{ infos }}
         <hr />

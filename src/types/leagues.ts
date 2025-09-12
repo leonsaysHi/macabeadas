@@ -1,3 +1,4 @@
+import type { CategorieId } from './categories';
 import type { FaseId } from './fases';
 import type { Gender, MultiId } from './multies';
 export type Sport = 'soccer' | 'basketball' | 'flag' | 'baseball' | 'kickball' | 'volleyball';
@@ -12,6 +13,7 @@ export interface League {
 
 export interface LeagueDetails {
   categorie: string;
+  categorieId: CategorieId;
   gender: Gender;
   sport: Sport;
   color: number;

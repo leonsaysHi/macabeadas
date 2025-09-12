@@ -2,10 +2,6 @@ export type FacilitieId = string;
 export type CourtId = string;
 
 // data
-export interface CourtDetails extends Facilitie {
-  facilitieId: FacilitieId;
-  courtTitle: string;
-}
 export interface Court {
   id?: CourtId;
   facilitieId: FacilitieId;
@@ -16,4 +12,11 @@ export interface Facilitie {
   title: string;
   link: string;
   map: string;
+}
+export interface CourtDetails extends Facilitie {
+  facilitieId: FacilitieId;
+  courtTitle: string;
+}
+export interface FacilitieDetails extends Facilitie {
+  courts: Court[];
 }

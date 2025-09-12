@@ -5,6 +5,7 @@ const en = {
     categorie: 'Categorie|Categories',
     color: 'Color',
     court: 'Court|Courts',
+    data: 'No data|Data|Datas',
     date: 'Date',
     dob: 'Date of birth',
     email: 'Email',
@@ -16,7 +17,7 @@ const en = {
       playoffs: 'Play-offs',
     },
     fname: 'First name',
-    game: 'Game|Games',
+    game: 'No game|Game|Games',
     gender: 'Gender|Genders',
     genders: {
       f: 'Feminino|Femininos',
@@ -30,7 +31,7 @@ const en = {
     lname: 'Last name',
     map: 'Map',
     name: 'Name',
-    noData: 'No data',
+    no: 'No',
     number: 'Number|Numbers',
     order: 'Order',
     player: 'Player|Players',
@@ -59,7 +60,6 @@ const en = {
     title: 'Title',
     type: 'Type',
     yes: 'Yes',
-    no: 'No',
   },
   actions: {
     add: 'Add',

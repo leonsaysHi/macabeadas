@@ -1,7 +1,9 @@
 <template>
   <ul class="list-group list-group-flush border-top border-bottom">
     <template v-if="!items.length">
-      <div class="list-group-item text-center text-body-secondary">No games.</div>
+      <div class="list-group-item text-center text-body-secondary">
+        {{ $t('globals.game', 0) }}
+      </div>
     </template>
     <template v-else>
       <template v-for="item in items" :key="item.id">
@@ -73,7 +75,9 @@
                     name: 'facility',
                     params: { facilitieId: item?.courtDetails?.facilitieId || 'test' },
                   }"
-                  >{{ item?.courtDetails?.title }}</RouterLink
+                  >{{ item?.courtDetails?.title }},&nbsp;{{
+                    item?.courtDetails.courtTitle
+                  }}</RouterLink
                 >
               </div>
             </template>
@@ -94,7 +98,6 @@ import SpinnerComp from '../SpinnerComp.vue';
 import { useI18n } from 'vue-i18n';
 import DateFormat from '../ui/DateFormat.vue';
 import DateTimeFormat from '../ui/DateTimeFormat.vue';
-import useLeagueComputed from '@/composables/useLeagueComputed';
 import ImageComp from '../form/ImageComp.vue';
 import type { GameComputed } from '@/types/leaguesComputed';
 import { computed } from 'vue';
@@ -102,7 +105,6 @@ import useRootProvided from '@/composables/useRootProvided';
 import type { CourtDetails } from '@/types/facilities';
 const { t } = useI18n();
 
-const { leagueId } = useLeagueComputed();
 const { getSponsor, getCourtDetails } = useRootProvided();
 
 interface IProps {
@@ -113,7 +115,7 @@ const props = withDefaults(defineProps<IProps>(), {});
 const items = computed<(GameComputed & { to: object; courtDetails: CourtDetails | undefined })[]>(
   () =>
     props.games.map((item: GameComputed) => ({
-      to: { name: 'league-game', params: { leagueId, gameId: item.gameId } },
+      to: { name: 'league-game', params: { leagueId: item.leagueId, gameId: item.gameId } },
       courtDetails: getCourtDetails(item.courtId),
       ...item,
     })),

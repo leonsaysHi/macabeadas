@@ -76,7 +76,7 @@
   </table>
   <div v-if="showEmpty && !computedItems?.length">
     <slot name="empty">
-      <p class="text-center text-secondary mt-2">{{ $t('globals.noData') }}.</p>
+      <p class="text-center text-secondary mt-2">{{ $t('globals.data', 0) }}.</p>
     </slot>
   </div>
 </template>

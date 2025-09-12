@@ -4,6 +4,7 @@ import type { LeagueId, Sport } from './leagues';
 import type { SponsorId } from './sponsors';
 import type { Last5, Team, TeamId, TeamPlayer } from './teams';
 import type { CourtId, FacilitieId } from './facilities';
+import type { CategorieId } from './categories';
 
 // Computed League
 export interface LeagueComputed {
@@ -53,6 +54,8 @@ export interface ComputedPlayerStats {
 
 // Computed Games
 export interface GameComputed {
+  categorieId: CategorieId;
+  leagueId: LeagueId;
   gameId: GameId;
   faseId: FaseId;
   groupIdx: number;
